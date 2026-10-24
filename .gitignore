@@ -33,6 +33,7 @@ backend/bin/openscad/
 backend/bin/*.zip
 backend/bin/*.exe
 backend/bin/*.com
+libraries/
 
 # Slicer Inbox & Render Outputs (Keep repo clean)
 slicer_inbox/

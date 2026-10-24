@@ -10,6 +10,30 @@ class OpenSCADRunner:
     def __init__(self, binary_path: Optional[str] = None):
         self.binary_path = binary_path or settings.OPENSCAD_PATH
 
+    def _get_env(self) -> Dict[str, str]:
+        env = os.environ.copy()
+        paths = []
+        if settings.LIBRARIES_DIR.exists():
+            paths.append(str(settings.LIBRARIES_DIR))
+            for p in settings.LIBRARIES_DIR.iterdir():
+                if p.is_dir():
+                    paths.append(str(p))
+                    for sub in ["src", "lib", "scad"]:
+                        subdir = p / sub
+                        if subdir.is_dir():
+                            paths.append(str(subdir))
+
+        docs_lib = Path.home() / "Documents" / "OpenSCAD" / "libraries"
+        if docs_lib.exists():
+            paths.append(str(docs_lib))
+
+        existing = env.get("OPENSCADPATH", "")
+        if existing:
+            paths.append(existing)
+
+        env["OPENSCADPATH"] = os.pathsep.join(paths)
+        return env
+
     def get_version(self) -> Dict[str, Any]:
         try:
             res = subprocess.run(
@@ -17,7 +41,8 @@ class OpenSCADRunner:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                timeout=5
+                timeout=5,
+                env=self._get_env()
             )
             out = res.stdout.strip() or res.stderr.strip()
             return {"success": res.returncode == 0, "version": out}
@@ -48,6 +73,7 @@ class OpenSCADRunner:
                 f.write(scad_code)
 
             cmd = [self.binary_path]
+            cmd.append("--enable=import-function")
             if enable_manifold:
                 cmd.append("--backend=Manifold")
             else:
@@ -62,7 +88,8 @@ class OpenSCADRunner:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
-                    timeout=timeout_seconds
+                    timeout=timeout_seconds,
+                    env=self._get_env()
                 )
                 duration = time.time() - start_time
                 stdout_text = proc.stdout
@@ -125,6 +152,7 @@ class OpenSCADRunner:
 
             cmd = [
                 self.binary_path,
+                "--enable=import-function",
                 "--render",
                 f"--imgsize={width},{height}",
                 "--autocenter",
@@ -142,7 +170,8 @@ class OpenSCADRunner:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
-                    timeout=timeout_seconds
+                    timeout=timeout_seconds,
+                    env=self._get_env()
                 )
                 duration = time.time() - start_time
                 output_bytes = None

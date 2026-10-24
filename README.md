@@ -16,7 +16,17 @@
    - **1-Click Apply**: Seamlessly updates the code editor with full undo/redo history.
    - **Autonomous Compiler Self-Healing**: Automatically catches compiler errors and fixes non-manifold or syntax bugs with one click.
    - **Multimodal 3D Vision Review**: Takes an off-screen snapshot of the rendered Three.js canvas and submits it to Gemini Vision to inspect structural integrity and ergonomics.
-3. **Monaco CAD Editor**:
+3. **Pre-Installed Standard Libraries**:
+   - Includes industry standard OpenSCAD libraries configured in `OPENSCADPATH`:
+     - **BOSL2** (`include <BOSL2/std.scad>`) - Attachments, filleted/chamfered cuboids, gears, hardware.
+     - **Round-Anything** (`include <Round-Anything/polyround.scad>`) - PolyRound fillets and smooth transitions.
+     - **dotSCAD** (`use <line2d.scad>`, bezier, voronoi) - Procedural patterns and computational geometry.
+     - **NopSCADlib** (`include <NopSCADlib/lib.scad>`) - Real-world vitamins (steppers, screws, bearings, fans, BOMs).
+     - **Catch'n'Hole** (`use <catchnhole/catchnhole.scad>`) - Captured hex/square nut pockets and countersunk bolt holes.
+     - **YAPP** (`include <YAPP/YAPPgenerator_v3.scad>`) - Parametric snap-fit/screw project boxes and PCB cases.
+     - **threads.scad** (`use <threads.scad>`) - ISO metric and imperial screw threads.
+     - **pins.scad** (`use <pins.scad>`) - 3D printable push-fit snap pins and joints.
+4. **Monaco CAD Editor**:
    - Custom Monarch tokenizer for OpenSCAD syntax highlighting.
    - Keyboard shortcuts (`F5` or `Ctrl+Enter` to re-render, `Ctrl+S` to save).
    - Draggable resizer edge dividers for full layout customization.
@@ -79,6 +89,7 @@ cd backend
 python -m venv .venv
 # Windows: .venv\Scripts\activate | Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
+python ../scripts/setup_libraries.py
 ```
 
 Create a `.env` file in the project root:

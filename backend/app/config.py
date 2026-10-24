@@ -33,6 +33,11 @@ def find_models_dir() -> Path:
     d.mkdir(parents=True, exist_ok=True)
     return d
 
+def find_libraries_dir() -> Path:
+    d = Path(__file__).resolve().parent.parent.parent / "libraries"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
 def find_slicer_inbox_dir() -> Path:
     env_dir = os.getenv("SLICER_INBOX_DIR")
     if env_dir:
@@ -45,6 +50,7 @@ def find_slicer_inbox_dir() -> Path:
 class Settings(BaseModel):
     OPENSCAD_PATH: str = find_openscad_binary()
     MODELS_DIR: Path = find_models_dir()
+    LIBRARIES_DIR: Path = find_libraries_dir()
     SLICER_INBOX_DIR: Path = find_slicer_inbox_dir()
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
