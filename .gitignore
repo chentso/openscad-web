@@ -1,0 +1,50 @@
+# Environment & Secrets (CRITICAL: DO NOT COMMIT)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials.json
+token.json
+
+# Python Virtual Environments & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+backend/.venv/
+.venv/
+env/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node.js & Frontend Builds
+frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Large Binaries & OpenSCAD Nightly Distributions
+backend/bin/openscad/
+backend/bin/*.zip
+backend/bin/*.exe
+backend/bin/*.com
+
+# Slicer Inbox & Render Outputs (Keep repo clean)
+slicer_inbox/
+*.stl
+*.3mf
+*.png
+!frontend/public/**
+
+# OS & IDE Caches
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
