@@ -41,6 +41,10 @@ slicer_inbox/
 *.png
 !frontend/public/**
 
+# Runtime State & Auto-saved Models
+models/.last_active.json
+models/model_*.scad
+
 # OS & IDE Caches
 .DS_Store
 Thumbs.db
