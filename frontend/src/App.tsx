@@ -325,19 +325,38 @@ export function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleQuickSave]);
 
-  // Initial render on mount (attempt to load default model from server if available)
+  // Initial load on mount: restore the last active model cached by the server
   useEffect(() => {
-    fetch("/api/files/parametric_box.scad")
+    fetch("/api/files/last-active")
       .then((res) => res.json())
       .then((data) => {
-        if (data.content) {
+        if (data.found && data.content) {
+          setCurrentFilename(data.filename);
           setCode(data.content);
+          setIsDirty(false);
+          const timeStr = data.modified_formatted || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          setLastSavedTime(timeStr);
           executeRender(data.content);
         } else {
-          executeRender(DEFAULT_SCAD);
+          fetch("/api/files/parametric_box.scad")
+            .then((r) => r.json())
+            .then((boxData) => {
+              if (boxData.content) {
+                setCurrentFilename("parametric_box.scad");
+                setCode(boxData.content);
+                setIsDirty(false);
+                executeRender(boxData.content);
+              } else {
+                executeRender(DEFAULT_SCAD);
+              }
+            })
+            .catch(() => {
+              executeRender(DEFAULT_SCAD);
+            });
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.warn("Failed to fetch last-active model:", err);
         executeRender(DEFAULT_SCAD);
       });
   }, [executeRender]);
