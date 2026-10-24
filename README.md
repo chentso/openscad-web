@@ -2,6 +2,8 @@
 
 > A modern, high-performance web-based OpenSCAD development environment powered by the native **OpenSCAD Nightly** engine with **Manifold** support and integrated with **Google Gemini AI** for natural-language CAD generation, automated compiler self-healing, and 3D visual inspections.
 
+![OpenSCAD AI Studio Interface](docs/screenshot.png)
+
 ---
 
 ## Key Features

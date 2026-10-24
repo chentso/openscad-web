@@ -40,6 +40,7 @@ slicer_inbox/
 *.3mf
 *.png
 !frontend/public/**
+!docs/**
 
 # Runtime State & Auto-saved Models
 models/.last_active.json
