@@ -415,24 +415,6 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
       {/* 3D Canvas Mount Point */}
       <div ref={containerRef} className="absolute inset-0 overflow-hidden" />
 
-      {/* Top HUD Overlay */}
-      <div className={`absolute top-3 left-3 flex items-center gap-2 backdrop-blur-md px-3 py-1.5 rounded-lg border text-xs pointer-events-none transition-colors ${
-        theme === "light"
-          ? "bg-white/95 border-slate-300 text-slate-800 shadow-sm"
-          : "bg-zinc-900/80 border-zinc-700/60 text-zinc-300"
-      }`}>
-        <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-        <span className={`font-semibold ${theme === "light" ? "text-slate-900" : "text-zinc-100"}`}>
-          {engineName || "OpenSCAD Nightly"}
-        </span>
-        {renderTimeMs !== undefined && (
-          <span className={theme === "light" ? "text-slate-600 font-medium" : "text-zinc-400"}>({renderTimeMs}ms)</span>
-        )}
-        {polyCount !== null && (
-          <span className={theme === "light" ? "text-slate-600 font-medium" : "text-zinc-400"}>• {polyCount.toLocaleString()} triangles</span>
-        )}
-      </div>
-
       {/* Quick View Presets (OpenSCAD Style: Top, Front, Right, Iso) */}
       <div className={`absolute top-3 left-1/2 -translate-x-1/2 flex items-center backdrop-blur-md p-1 rounded-lg border text-xs z-10 gap-1 transition-colors ${
         theme === "light"
@@ -475,6 +457,26 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
           Iso (55°, 25°)
         </button>
       </div>
+
+      {/* Bottom Status HUD Overlay */}
+      {!activeError && (
+        <div className={`absolute bottom-3 left-3 flex items-center gap-2 backdrop-blur-md px-3 py-1.5 rounded-lg border text-xs pointer-events-none z-10 transition-colors ${
+          theme === "light"
+            ? "bg-white/95 border-slate-300 text-slate-800 shadow-sm"
+            : "bg-zinc-900/80 border-zinc-700/60 text-zinc-300"
+        }`}>
+          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className={`font-semibold ${theme === "light" ? "text-slate-900" : "text-zinc-100"}`}>
+            {engineName || "OpenSCAD Nightly"}
+          </span>
+          {renderTimeMs !== undefined && (
+            <span className={theme === "light" ? "text-slate-600 font-medium" : "text-zinc-400"}>({renderTimeMs}ms)</span>
+          )}
+          {polyCount !== null && (
+            <span className={theme === "light" ? "text-slate-600 font-medium" : "text-zinc-400"}>• {polyCount.toLocaleString()} triangles</span>
+          )}
+        </div>
+      )}
 
       {/* Viewport Control Tools (Right side) */}
       <div className={`absolute top-3 right-3 flex items-center gap-1.5 backdrop-blur-md p-1 rounded-lg border z-10 transition-colors ${
