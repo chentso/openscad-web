@@ -114,20 +114,20 @@ export const Editor: React.FC<EditorProps> = ({ code, onChange, onRun, theme = "
         base: "vs",
         inherit: true,
         rules: [
-          { token: "keyword", foreground: "e11d48", fontStyle: "bold" },
-          { token: "type.identifier", foreground: "0284c7" },
-          { token: "variable.predefined", foreground: "d97706", fontStyle: "bold" },
-          { token: "comment", foreground: "64748b", fontStyle: "italic" },
-          { token: "string", foreground: "059669" },
-          { token: "number", foreground: "7c3aed" }
+          { token: "keyword", foreground: "be123c", fontStyle: "bold" },
+          { token: "type.identifier", foreground: "0369a1", fontStyle: "bold" },
+          { token: "variable.predefined", foreground: "b45309", fontStyle: "bold" },
+          { token: "comment", foreground: "475569", fontStyle: "italic" },
+          { token: "string", foreground: "047857" },
+          { token: "number", foreground: "6d28d9" }
         ],
         colors: {
           "editor.background": "#ffffff",
-          "editor.lineHighlightBackground": "#f8fafc",
-          "editorLineNumber.foreground": "#94a3b8",
-          "editorLineNumber.activeForeground": "#334155",
-          "editorIndentGuide.background": "#e2e8f0",
-          "editorIndentGuide.activeBackground": "#cbd5e1"
+          "editor.lineHighlightBackground": "#f1f5f9",
+          "editorLineNumber.foreground": "#64748b",
+          "editorLineNumber.activeForeground": "#0f172a",
+          "editorIndentGuide.background": "#cbd5e1",
+          "editorIndentGuide.activeBackground": "#94a3b8"
         }
       });
     }

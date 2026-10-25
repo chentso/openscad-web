@@ -111,15 +111,15 @@ export const Customizer: React.FC<CustomizerProps> = ({ code, onCodeChange, them
   if (params.length === 0) {
     return (
       <div className={`p-6 text-center text-xs flex flex-col items-center justify-center h-full ${
-        isLight ? "text-slate-500 bg-slate-50" : "text-zinc-500 bg-zinc-950"
+        isLight ? "text-slate-600 bg-slate-50" : "text-zinc-500 bg-zinc-950"
       }`}>
-        <Sliders className={`w-8 h-8 mb-2 stroke-1 ${isLight ? "text-slate-400" : "text-zinc-600"}`} />
-        <p className={`font-medium ${isLight ? "text-slate-700" : "text-zinc-400"}`}>No Customizer Parameters Detected</p>
+        <Sliders className={`w-8 h-8 mb-2 stroke-1 ${isLight ? "text-slate-500" : "text-zinc-600"}`} />
+        <p className={`font-semibold ${isLight ? "text-slate-900" : "text-zinc-400"}`}>No Customizer Parameters Detected</p>
         <p className="mt-1 max-w-xs leading-relaxed">
           Declare top-level variables with range comments, e.g.:
         </p>
         <pre className={`mt-2 border p-2 rounded font-mono text-[11px] text-left ${
-          isLight ? "bg-white border-slate-200 text-slate-700" : "bg-zinc-900 border-zinc-800 text-zinc-300"
+          isLight ? "bg-white border-slate-300 text-slate-900 shadow-2xs" : "bg-zinc-900 border-zinc-800 text-zinc-300"
         }`}>
           {`width = 50; // [20:100]\nheight = 25; // [10:0.5:60]\nchamfer = true;`}
         </pre>
@@ -129,13 +129,13 @@ export const Customizer: React.FC<CustomizerProps> = ({ code, onCodeChange, them
 
   return (
     <div className={`p-4 space-y-4 overflow-y-auto h-full text-xs transition-colors ${
-      isLight ? "bg-white text-slate-800" : "bg-zinc-950 text-zinc-200"
+      isLight ? "bg-white text-slate-950" : "bg-zinc-950 text-zinc-200"
     }`}>
       <div className={`flex items-center justify-between pb-2 border-b ${
-        isLight ? "border-slate-200" : "border-zinc-800"
+        isLight ? "border-slate-300" : "border-zinc-800"
       }`}>
         <span className={`font-semibold uppercase tracking-wider text-[11px] ${
-          isLight ? "text-slate-600" : "text-zinc-300"
+          isLight ? "text-slate-900 font-bold" : "text-zinc-300"
         }`}>
           Model Parameters ({params.length})
         </span>
@@ -143,12 +143,12 @@ export const Customizer: React.FC<CustomizerProps> = ({ code, onCodeChange, them
 
       {params.map((p) => (
         <div key={p.name} className={`space-y-1.5 p-3 rounded-lg border transition-colors ${
-          isLight ? "bg-slate-50/80 border-slate-200/90 shadow-2xs" : "bg-zinc-900/60 border-zinc-800"
+          isLight ? "bg-slate-50 border-slate-300 shadow-2xs" : "bg-zinc-900/60 border-zinc-800"
         }`}>
           <div className="flex items-center justify-between">
-            <label className={`font-mono font-medium ${isLight ? "text-sky-700" : "text-cyan-400"}`}>{p.name}</label>
+            <label className={`font-mono ${isLight ? "text-sky-800 font-bold" : "text-cyan-400 font-medium"}`}>{p.name}</label>
             <span className={`font-mono px-1.5 py-0.5 rounded text-[11px] ${
-              isLight ? "text-slate-600 bg-slate-200" : "text-zinc-400 bg-zinc-800"
+              isLight ? "text-slate-950 bg-slate-200 border border-slate-300 font-semibold" : "text-zinc-400 bg-zinc-800"
             }`}>
               {String(p.value)}
             </span>
@@ -163,9 +163,9 @@ export const Customizer: React.FC<CustomizerProps> = ({ code, onCodeChange, them
                 step={p.step}
                 value={p.value as number}
                 onChange={(e) => handleUpdate(p.name, parseFloat(e.target.value))}
-                className="w-full accent-orange-500 cursor-pointer h-1.5 bg-zinc-700 rounded-lg appearance-none"
+                className={`w-full accent-orange-500 cursor-pointer h-1.5 ${isLight ? "bg-slate-300" : "bg-zinc-700"} rounded-lg appearance-none`}
               />
-              <div className={`flex justify-between text-[10px] font-mono ${isLight ? "text-slate-400" : "text-zinc-500"}`}>
+              <div className={`flex justify-between text-[10px] font-mono ${isLight ? "text-slate-600 font-medium" : "text-zinc-500"}`}>
                 <span>{p.min}</span>
                 <span>{p.max}</span>
               </div>
@@ -180,7 +180,7 @@ export const Customizer: React.FC<CustomizerProps> = ({ code, onCodeChange, them
                 onChange={(e) => handleUpdate(p.name, e.target.checked)}
                 className="accent-orange-500 w-4 h-4 rounded cursor-pointer"
               />
-              <span className={isLight ? "text-slate-700" : "text-zinc-300"}>Enable feature</span>
+              <span className={isLight ? "text-slate-900 font-medium" : "text-zinc-300"}>Enable feature</span>
             </label>
           )}
 
@@ -189,14 +189,14 @@ export const Customizer: React.FC<CustomizerProps> = ({ code, onCodeChange, them
               type="text"
               value={p.value as string}
               onChange={(e) => handleUpdate(p.name, e.target.value)}
-              className={`w-full border rounded px-2 py-1 font-mono ${
-                isLight ? "bg-white border-slate-300 text-slate-800" : "bg-zinc-950 border-zinc-700 text-zinc-200"
+              className={`w-full border rounded px-2 py-1 font-mono font-medium ${
+                isLight ? "bg-white border-slate-300 text-slate-950" : "bg-zinc-950 border-zinc-700 text-zinc-200"
               }`}
             />
           )}
 
           {p.comment && (
-            <p className={`text-[10px] italic ${isLight ? "text-slate-400" : "text-zinc-500"}`}>{p.comment}</p>
+            <p className={`text-[10px] italic ${isLight ? "text-slate-600 font-medium" : "text-zinc-500"}`}>{p.comment}</p>
           )}
         </div>
       ))}

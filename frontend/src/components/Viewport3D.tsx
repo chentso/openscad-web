@@ -156,7 +156,11 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
 
     // Add tick notches to the axes
     const tickGeo = new THREE.BufferGeometry().setFromPoints(tickPoints);
-    const tickMat = new THREE.LineBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.75 });
+    const tickMat = new THREE.LineBasicMaterial({
+      color: theme === "light" ? 0x475569 : 0x94a3b8,
+      transparent: true,
+      opacity: theme === "light" ? 0.9 : 0.75
+    });
     group.add(new THREE.LineSegments(tickGeo, tickMat));
 
     return group;
@@ -172,7 +176,7 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
 
     // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(theme === "light" ? "#f1f5f9" : "#1e1e24"); // OpenSCAD canvas tone
+    scene.background = new THREE.Color(theme === "light" ? "#e2e8f0" : "#1e1e24"); // OpenSCAD canvas tone
     sceneRef.current = scene;
 
     // Camera (FOV 25 matching OpenSCAD's telephoto CAD perspective)
@@ -342,7 +346,7 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
       // Add OpenSCAD CAD feature outlines (edges)
       const edgesGeometry = new THREE.EdgesGeometry(geometry, 24); // Threshold angle
       const edgesMaterial = new THREE.LineBasicMaterial({
-        color: 0x451a03, // Dark amber outline
+        color: theme === "light" ? 0x1c1917 : 0x451a03, // Crisp dark outline for high contrast
         linewidth: 1
       });
       const edgesLines = new THREE.LineSegments(edgesGeometry, edgesMaterial);
@@ -371,7 +375,12 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
   // Theme background update
   useEffect(() => {
     if (sceneRef.current) {
-      sceneRef.current.background = new THREE.Color(theme === "light" ? "#f1f5f9" : "#1e1e24");
+      sceneRef.current.background = new THREE.Color(theme === "light" ? "#e2e8f0" : "#1e1e24");
+    }
+    if (edgesRef.current) {
+      (edgesRef.current.material as THREE.LineBasicMaterial).color.setHex(
+        theme === "light" ? 0x1c1917 : 0x451a03
+      );
     }
   }, [theme]);
 
@@ -409,7 +418,7 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
       {/* Top HUD Overlay */}
       <div className={`absolute top-3 left-3 flex items-center gap-2 backdrop-blur-md px-3 py-1.5 rounded-lg border text-xs pointer-events-none transition-colors ${
         theme === "light"
-          ? "bg-white/90 border-slate-200 text-slate-700 shadow-xs"
+          ? "bg-white/95 border-slate-300 text-slate-800 shadow-sm"
           : "bg-zinc-900/80 border-zinc-700/60 text-zinc-300"
       }`}>
         <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -417,39 +426,39 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
           {engineName || "OpenSCAD Nightly"}
         </span>
         {renderTimeMs !== undefined && (
-          <span className={theme === "light" ? "text-slate-500" : "text-zinc-400"}>({renderTimeMs}ms)</span>
+          <span className={theme === "light" ? "text-slate-600 font-medium" : "text-zinc-400"}>({renderTimeMs}ms)</span>
         )}
         {polyCount !== null && (
-          <span className={theme === "light" ? "text-slate-500" : "text-zinc-400"}>• {polyCount.toLocaleString()} triangles</span>
+          <span className={theme === "light" ? "text-slate-600 font-medium" : "text-zinc-400"}>• {polyCount.toLocaleString()} triangles</span>
         )}
       </div>
 
       {/* Quick View Presets (OpenSCAD Style: Top, Front, Right, Iso) */}
       <div className={`absolute top-3 left-1/2 -translate-x-1/2 flex items-center backdrop-blur-md p-1 rounded-lg border text-xs z-10 gap-1 transition-colors ${
         theme === "light"
-          ? "bg-white/90 border-slate-200 text-slate-700 shadow-xs"
+          ? "bg-white/95 border-slate-300 text-slate-800 shadow-sm"
           : "bg-zinc-900/80 border-zinc-700/60 text-zinc-300"
       }`}>
         <button
           onClick={() => alignCameraToView("top")}
-          className={`px-2 py-0.5 rounded text-[11px] font-mono transition ${
-            theme === "light" ? "hover:bg-slate-100 text-slate-700" : "hover:bg-zinc-800"
+          className={`px-2 py-0.5 rounded text-[11px] font-mono font-medium transition ${
+            theme === "light" ? "hover:bg-slate-200 text-slate-800" : "hover:bg-zinc-800"
           }`}
         >
           Top
         </button>
         <button
           onClick={() => alignCameraToView("front")}
-          className={`px-2 py-0.5 rounded text-[11px] font-mono transition ${
-            theme === "light" ? "hover:bg-slate-100 text-slate-700" : "hover:bg-zinc-800"
+          className={`px-2 py-0.5 rounded text-[11px] font-mono font-medium transition ${
+            theme === "light" ? "hover:bg-slate-200 text-slate-800" : "hover:bg-zinc-800"
           }`}
         >
           Front
         </button>
         <button
           onClick={() => alignCameraToView("right")}
-          className={`px-2 py-0.5 rounded text-[11px] font-mono transition ${
-            theme === "light" ? "hover:bg-slate-100 text-slate-700" : "hover:bg-zinc-800"
+          className={`px-2 py-0.5 rounded text-[11px] font-mono font-medium transition ${
+            theme === "light" ? "hover:bg-slate-200 text-slate-800" : "hover:bg-zinc-800"
           }`}
         >
           Right
@@ -458,7 +467,7 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
           onClick={() => alignCameraToView("iso")}
           className={`px-2 py-0.5 rounded text-[11px] font-mono transition flex items-center gap-1 ${
             theme === "light"
-              ? "bg-orange-50 text-orange-600 font-semibold border border-orange-200"
+              ? "bg-orange-600 text-white font-semibold shadow-2xs"
               : "bg-zinc-800 text-orange-400"
           }`}
         >
@@ -470,7 +479,7 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
       {/* Viewport Control Tools (Right side) */}
       <div className={`absolute top-3 right-3 flex items-center gap-1.5 backdrop-blur-md p-1 rounded-lg border z-10 transition-colors ${
         theme === "light"
-          ? "bg-white/90 border-slate-200 text-slate-700 shadow-xs"
+          ? "bg-white/95 border-slate-300 text-slate-800 shadow-sm"
           : "bg-zinc-900/80 border-zinc-700/60 text-zinc-300"
       }`}>
         <button
@@ -478,8 +487,8 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
           title="Toggle CAD Feature Edges"
           className={`p-1.5 rounded transition ${
             showEdges
-              ? (theme === "light" ? "text-amber-600 bg-amber-50" : "text-amber-400 bg-zinc-800")
-              : (theme === "light" ? "hover:bg-slate-100" : "hover:bg-zinc-800")
+              ? (theme === "light" ? "text-amber-700 bg-amber-100 font-bold" : "text-amber-400 bg-zinc-800")
+              : (theme === "light" ? "hover:bg-slate-200 text-slate-700" : "hover:bg-zinc-800")
           }`}
         >
           <Eye size={16} />
@@ -489,8 +498,8 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
           title="Toggle Pure Wireframe"
           className={`p-1.5 rounded transition ${
             wireframe
-              ? (theme === "light" ? "text-orange-600 bg-orange-50" : "text-orange-400 bg-zinc-800")
-              : (theme === "light" ? "hover:bg-slate-100" : "hover:bg-zinc-800")
+              ? (theme === "light" ? "text-orange-700 bg-orange-100 font-bold" : "text-orange-400 bg-zinc-800")
+              : (theme === "light" ? "hover:bg-slate-200 text-slate-700" : "hover:bg-zinc-800")
           }`}
         >
           <Box size={16} />
@@ -500,8 +509,8 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
           title="Toggle OpenSCAD Axes (10mm ticks)"
           className={`p-1.5 rounded transition ${
             showAxes
-              ? (theme === "light" ? "text-cyan-700 bg-cyan-50" : "text-cyan-400 bg-zinc-800")
-              : (theme === "light" ? "hover:bg-slate-100" : "hover:bg-zinc-800")
+              ? (theme === "light" ? "text-cyan-800 bg-cyan-100 font-bold" : "text-cyan-400 bg-zinc-800")
+              : (theme === "light" ? "hover:bg-slate-200 text-slate-700" : "hover:bg-zinc-800")
           }`}
         >
           <Crosshair size={16} />
@@ -509,7 +518,7 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
         <button
           onClick={() => alignCameraToView("iso")}
           title="Reset Camera View (View All)"
-          className={`p-1.5 rounded transition ${theme === "light" ? "hover:bg-slate-100" : "hover:bg-zinc-800"}`}
+          className={`p-1.5 rounded transition ${theme === "light" ? "hover:bg-slate-200 text-slate-700" : "hover:bg-zinc-800"}`}
         >
           <RotateCcw size={16} />
         </button>

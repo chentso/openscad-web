@@ -280,16 +280,16 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
   return (
     <div className={`flex flex-col h-full border-l text-xs transition-colors ${
-      isLight ? "bg-slate-50 border-slate-200 text-slate-800" : "bg-zinc-900 border-zinc-800 text-zinc-200"
+      isLight ? "bg-slate-50 border-slate-300 text-slate-900" : "bg-zinc-900 border-zinc-800 text-zinc-200"
     }`}>
       {/* Header */}
       <div className={`p-3 border-b flex items-center justify-between transition-colors ${
-        isLight ? "bg-white border-slate-200" : "bg-zinc-950/60 border-zinc-800"
+        isLight ? "bg-white border-slate-300" : "bg-zinc-950/60 border-zinc-800"
       }`}>
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-orange-500" />
           <span className={`font-semibold uppercase tracking-wider text-[11px] ${
-            isLight ? "text-slate-900" : "text-zinc-100"
+            isLight ? "text-slate-950 font-bold" : "text-zinc-100"
           }`}>
             Gemini CAD Copilot
           </span>
@@ -339,7 +339,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               className={`flex flex-col gap-1.5 ${isUser ? "items-end" : "items-start"}`}
             >
               <div className={`flex items-center gap-1 text-[10px] font-medium ${
-                isLight ? "text-slate-500" : "text-zinc-400"
+                isLight ? "text-slate-700 font-semibold" : "text-zinc-400"
               }`}>
                 {isUser ? (
                   <>
@@ -348,8 +348,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                   </>
                 ) : (
                   <>
-                    <Bot size={11} className="text-orange-500" />
-                    <span className="text-orange-500">Gemini</span>
+                    <Bot size={11} className="text-orange-600" />
+                    <span className="text-orange-600 font-bold">Gemini</span>
                   </>
                 )}
               </div>
@@ -359,7 +359,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                   isUser
                     ? "bg-orange-600 text-white shadow-xs"
                     : isLight
-                    ? "bg-white text-slate-800 border border-slate-200/90 shadow-xs"
+                    ? "bg-white text-slate-950 border border-slate-300 shadow-sm"
                     : "bg-zinc-800/90 text-zinc-200 border border-zinc-700/60"
                 }`}
               >
@@ -368,9 +368,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                 {/* 1-Click Apply Code Button */}
                 {codeSnippet && (
                   <div className={`mt-3 pt-2.5 border-t flex items-center justify-between gap-2 ${
-                    isLight ? "border-slate-200" : "border-zinc-700/80"
+                    isLight ? "border-slate-300" : "border-zinc-700/80"
                   }`}>
-                    <span className={`text-[10px] font-mono ${isLight ? "text-slate-500" : "text-zinc-400"}`}>
+                    <span className={`text-[10px] font-mono ${isLight ? "text-slate-600 font-medium" : "text-zinc-400"}`}>
                       OpenSCAD Code Block Ready
                     </span>
                     <button
@@ -408,13 +408,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
       {/* Quick Action Pills */}
       <div className={`px-3 py-1.5 border-t flex gap-1.5 overflow-x-auto no-scrollbar transition-colors ${
-        isLight ? "border-slate-200 bg-slate-100/60" : "border-zinc-800 bg-zinc-950/40"
+        isLight ? "border-slate-300 bg-slate-100" : "border-zinc-800 bg-zinc-950/40"
       }`}>
         <button
           onClick={() => handleSend("Create a parametric box with sliding lid and screw holes")}
           className={`whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] transition border ${
             isLight
-              ? "bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-2xs"
+              ? "bg-white hover:bg-slate-50 text-slate-900 border-slate-300 shadow-2xs font-medium"
               : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700"
           }`}
         >
@@ -424,7 +424,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
           onClick={handleVisionReview}
           className={`whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] transition border flex items-center gap-1 ${
             isLight
-              ? "bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-2xs"
+              ? "bg-white hover:bg-slate-50 text-slate-900 border-slate-300 shadow-2xs font-medium"
               : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700"
           }`}
         >
@@ -434,7 +434,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
           onClick={() => handleSend("Add rounded chamfers and fillets to the edges")}
           className={`whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] transition border ${
             isLight
-              ? "bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-2xs"
+              ? "bg-white hover:bg-slate-50 text-slate-900 border-slate-300 shadow-2xs font-medium"
               : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700"
           }`}
         >
@@ -444,7 +444,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
       {/* Prompt Input Box */}
       <div className={`p-3 border-t transition-colors ${
-        isLight ? "border-slate-200 bg-white" : "border-zinc-800 bg-zinc-950"
+        isLight ? "border-slate-300 bg-white" : "border-zinc-800 bg-zinc-950"
       }`}>
         <div className="relative flex items-center">
           <textarea
@@ -460,7 +460,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             rows={2}
             className={`w-full border rounded-lg pl-3 pr-10 py-2 resize-none font-sans text-xs focus:outline-none focus:border-orange-500 transition-colors ${
               isLight
-                ? "bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400"
+                ? "bg-slate-50 border-slate-300 text-slate-950 placeholder-slate-500 font-medium"
                 : "bg-zinc-900 border-zinc-700 text-zinc-200 placeholder-zinc-500"
             }`}
           />
