@@ -8,7 +8,7 @@ import { FileManagerModal } from "./components/FileManagerModal";
 import {
   Play, Download, Terminal, Settings as SettingsIcon,
   Code, Sliders, ChevronDown, Cpu, Save, FolderOpen, Check, FilePlus, Loader2,
-  Sun, Moon
+  Sun, Moon, Menu, Package, FileCode
 } from "lucide-react";
 
 function generateTimestampedName(): string {
@@ -126,6 +126,24 @@ export function App() {
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
+
+  // Header Options Dropdown Menu state
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]);
 
   // API Key & Backend status
   const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
@@ -617,124 +635,203 @@ export function App() {
             />
             <span>Auto</span>
           </label>
-
-          <label className={`flex items-center gap-1.5 text-xs cursor-pointer ml-1 ${isLight ? "text-slate-600" : "text-zinc-400"}`} title="Automatically saves model to server after 2.5s of typing inactivity">
-            <input
-              type="checkbox"
-              checked={autoSaveEnabled}
-              onChange={(e) => setAutoSaveEnabled(e.target.checked)}
-              className="accent-orange-500 w-3.5 h-3.5 rounded cursor-pointer"
-            />
-            <span>Auto-save</span>
-          </label>
         </div>
 
-        {/* Right Menu / Status, Theme & Exports */}
-        <div className="flex items-center gap-2.5">
-          {/* Day / Night Theme Toggle */}
+        {/* Right Menu / Consolidated Options Dropdown */}
+        <div className="relative" ref={menuRef}>
           <button
-            onClick={toggleTheme}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition ${
-              isLight
-                ? "bg-amber-50 hover:bg-amber-100/90 border-amber-200 text-amber-800 shadow-2xs"
-                : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200"
+            onClick={() => setMenuOpen(!menuOpen)}
+            className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-2xs ${
+              menuOpen
+                ? (isLight ? "bg-slate-100 border-slate-300 text-slate-900" : "bg-zinc-800 border-zinc-600 text-zinc-100")
+                : (isLight ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700" : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200")
             }`}
-            title={isLight ? "Switch to Night Theme" : "Switch to Day Theme"}
+            title="Options and settings"
           >
-            {isLight ? (
-              <>
-                <Sun size={13} className="text-amber-500 fill-amber-400" />
-                <span>Day</span>
-              </>
-            ) : (
-              <>
-                <Moon size={13} className="text-blue-400" />
-                <span>Night</span>
-              </>
-            )}
+            <Menu size={14} className="text-orange-500" />
+            <span>Menu</span>
+            <ChevronDown size={12} className={`transition-transform duration-200 ${menuOpen ? "rotate-180" : ""} ${isLight ? "text-slate-400" : "text-zinc-400"}`} />
           </button>
 
-          {/* Export Dropdown */}
-          <div className="relative group">
-            <button className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+          {/* Consolidated Dropdown Menu Panel */}
+          {menuOpen && (
+            <div className={`absolute right-0 mt-1.5 w-64 border rounded-xl shadow-2xl py-1.5 z-50 text-xs transition-colors ${
               isLight
-                ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700"
-                : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200"
+                ? "bg-white border-slate-200 text-slate-800 shadow-slate-300/40"
+                : "bg-zinc-900 border-zinc-700 text-zinc-200 shadow-black/60"
             }`}>
-              <Download size={13} />
-              Export
-              <ChevronDown size={12} className={isLight ? "text-slate-400" : "text-zinc-400"} />
-            </button>
-            <div className={`absolute right-0 mt-1 w-36 border rounded-lg shadow-xl py-1 hidden group-hover:block z-50 text-xs ${
-              isLight ? "bg-white border-slate-200 text-slate-800" : "bg-zinc-900 border-zinc-700 text-zinc-200"
-            }`}>
-              <button
-                onClick={() => handleExport("stl")}
-                className={`w-full text-left px-3 py-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
-              >
-                STL Mesh (.stl)
-              </button>
-              <button
-                onClick={() => handleExport("3mf")}
-                className={`w-full text-left px-3 py-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
-              >
-                3MF Package (.3mf)
-              </button>
-              <button
-                onClick={() => handleExport("scad")}
-                className={`w-full text-left px-3 py-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
-              >
-                Source (.scad)
-              </button>
-              <button
-                onClick={() => handleExport("png")}
-                className={`w-full text-left px-3 py-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
-              >
-                Snapshot (.png)
-              </button>
-              <div className={`h-px my-1 ${isLight ? "bg-slate-100" : "bg-zinc-800"}`} />
+              {/* Section 1: Models & Files */}
+              <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+                Models & Files
+              </div>
               <button
                 onClick={() => {
+                  setMenuOpen(false);
+                  setFileManagerMode("browse");
+                  setFileManagerOpen(true);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-1.5 transition ${
+                  isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <FolderOpen size={14} className="text-orange-500" />
+                  <span>Browse Server Models</span>
+                </div>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+                  isLight ? "bg-slate-100 border-slate-200 text-slate-600" : "bg-zinc-800 border-zinc-700 text-zinc-400"
+                }`}>
+                  models/
+                </span>
+              </button>
+
+              <div className={`h-px my-1.5 ${isLight ? "bg-slate-100" : "bg-zinc-800"}`} />
+
+              {/* Section 2: Export */}
+              <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+                Export Options
+              </div>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleExport("stl");
+                }}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 transition ${
+                  isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"
+                }`}
+              >
+                <Download size={13} className="text-blue-500" />
+                <span>STL Mesh (.stl)</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleExport("3mf");
+                }}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 transition ${
+                  isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"
+                }`}
+              >
+                <Package size={13} className="text-emerald-500" />
+                <span>3MF Package (.3mf)</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleExport("scad");
+                }}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 transition ${
+                  isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"
+                }`}
+              >
+                <FileCode size={13} className="text-amber-500" />
+                <span>Source Code (.scad)</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleExport("png");
+                }}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 transition ${
+                  isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"
+                }`}
+              >
+                <Download size={13} className="text-purple-500" />
+                <span>Snapshot Image (.png)</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
                   setFileManagerMode("save_as");
                   setFileManagerOpen(true);
                 }}
-                className={`w-full text-left px-3 py-1.5 flex items-center gap-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 transition ${
+                  isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"
+                }`}
               >
-                <Save size={12} className="text-orange-500" />
-                Save As to Server...
+                <Save size={13} className="text-orange-500" />
+                <span>Save As to Server...</span>
+              </button>
+
+              <div className={`h-px my-1.5 ${isLight ? "bg-slate-100" : "bg-zinc-800"}`} />
+
+              {/* Section 3: Preferences & Automation */}
+              <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+                Preferences
+              </div>
+
+              {/* Day / Night Mode Toggle */}
+              <button
+                onClick={() => {
+                  toggleTheme();
+                }}
+                className={`w-full flex items-center justify-between px-3 py-1.5 transition ${
+                  isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {isLight ? (
+                    <Sun size={14} className="text-amber-500 fill-amber-400" />
+                  ) : (
+                    <Moon size={14} className="text-blue-400" />
+                  )}
+                  <span>Theme</span>
+                </div>
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${
+                  isLight
+                    ? "bg-amber-50 border-amber-200 text-amber-700"
+                    : "bg-zinc-800 border-zinc-700 text-zinc-300"
+                }`}>
+                  {isLight ? "Day Mode" : "Night Mode"}
+                </span>
+              </button>
+
+              {/* Auto-save Toggle */}
+              <label className={`w-full flex items-center justify-between px-3 py-1.5 cursor-pointer transition ${
+                isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"
+              }`}>
+                <div className="flex items-center gap-2">
+                  <Save size={14} className="text-amber-500" />
+                  <span>Auto-save to Server</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={autoSaveEnabled}
+                  onChange={(e) => setAutoSaveEnabled(e.target.checked)}
+                  className="accent-orange-500 w-3.5 h-3.5 rounded cursor-pointer"
+                />
+              </label>
+
+              <div className={`h-px my-1.5 ${isLight ? "bg-slate-100" : "bg-zinc-800"}`} />
+
+              {/* Section 4: AI Copilot Key Configuration */}
+              <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+                AI Copilot
+              </div>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setApiKeyModalOpen(true);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-1.5 transition ${
+                  isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <SettingsIcon size={14} className="text-orange-500" />
+                  <span>Gemini API Key</span>
+                </div>
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                  hasApiKey
+                    ? (isLight ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-emerald-950/60 border-emerald-800 text-emerald-400")
+                    : (isLight ? "bg-amber-50 border-amber-200 text-amber-700" : "bg-amber-950/60 border-amber-800 text-amber-400")
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${hasApiKey ? "bg-emerald-500" : "bg-amber-500"}`} />
+                  {hasApiKey ? "Ready" : "Configure"}
+                </span>
               </button>
             </div>
-          </div>
-
-          {/* Server Models Browser Button */}
-          <button
-            onClick={() => {
-              setFileManagerMode("browse");
-              setFileManagerOpen(true);
-            }}
-            className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-              isLight
-                ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700"
-                : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200"
-            }`}
-            title="Browse, open and manage models on server"
-          >
-            <FolderOpen size={13} className="text-orange-500" />
-            <span>Models</span>
-          </button>
-
-          {/* Gemini API Key status button */}
-          <button
-            onClick={() => setApiKeyModalOpen(true)}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition ${
-              hasApiKey
-                ? (isLight ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-emerald-950/40 border-emerald-800 text-emerald-400")
-                : (isLight ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-amber-950/40 border-amber-800 text-amber-400")
-            }`}
-          >
-            <SettingsIcon size={13} />
-            <span>{hasApiKey ? "Gemini Ready" : "Set Gemini Key"}</span>
-          </button>
+          )}
         </div>
       </header>
 
