@@ -8,7 +8,7 @@ import { FileManagerModal } from "./components/FileManagerModal";
 import {
   Play, Download, Terminal, Settings as SettingsIcon,
   Code, Sliders, ChevronDown, Cpu, Save, FolderOpen, Check, FilePlus, Loader2,
-  Sun, Moon, Menu, Package, FileCode
+  Sun, Moon, Menu, Package, FileCode, Sparkles, PanelRightClose, PanelRightOpen
 } from "lucide-react";
 
 function generateTimestampedName(): string {
@@ -161,11 +161,21 @@ export function App() {
   const [isDraggingLeft, setIsDraggingLeft] = useState(false);
   const [isDraggingRight, setIsDraggingRight] = useState(false);
 
+  // Gemini AI Copilot Sidebar Toggle state
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(() => {
+    const saved = localStorage.getItem("openscad_chat_open");
+    return saved !== null ? saved === "true" : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("openscad_chat_open", String(isChatOpen));
+  }, [isChatOpen]);
+
   // Global mouse move and mouse up listeners for smooth resizing
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDraggingLeft) {
-        const maxWidth = Math.max(300, window.innerWidth - chatWidth - 250);
+        const maxWidth = Math.max(300, window.innerWidth - (isChatOpen ? chatWidth : 0) - 250);
         const newWidth = Math.min(Math.max(260, e.clientX), maxWidth);
         setEditorWidth(newWidth);
       } else if (isDraggingRight) {
@@ -193,7 +203,7 @@ export function App() {
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     };
-  }, [isDraggingLeft, isDraggingRight, editorWidth, chatWidth]);
+  }, [isDraggingLeft, isDraggingRight, editorWidth, chatWidth, isChatOpen]);
 
   // Check backend & gemini status on mount
   useEffect(() => {
@@ -353,12 +363,16 @@ export function App() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
 
-  // Global Ctrl+S / Cmd+S shortcut to save
+  // Global Ctrl+S (Save) & Ctrl+B (Toggle Copilot Sidebar) shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
         handleQuickSave();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        setIsChatOpen((prev) => !prev);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -638,20 +652,36 @@ export function App() {
         </div>
 
         {/* Right Menu / Consolidated Options Dropdown */}
-        <div className="relative" ref={menuRef}>
+        <div className="flex items-center gap-2">
+          {/* Gemini AI Copilot Sidebar Toggle Button */}
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-semibold transition shadow-xs ${
-              menuOpen
-                ? (isLight ? "bg-slate-200 border-slate-400 text-slate-950" : "bg-zinc-800 border-zinc-600 text-zinc-100")
-                : (isLight ? "bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-900" : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200")
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            className={`flex items-center gap-1.5 border px-2.5 py-1.5 rounded-lg text-xs font-semibold transition shadow-xs ${
+              isChatOpen
+                ? (isLight ? "bg-orange-50 hover:bg-orange-100 border-orange-300 text-orange-950 font-bold" : "bg-orange-950/40 hover:bg-orange-950/60 border-orange-800 text-orange-300")
+                : (isLight ? "bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700 font-semibold" : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300")
             }`}
-            title="Options and settings"
+            title={isChatOpen ? "Hide Gemini AI Copilot (Ctrl+B)" : "Show Gemini AI Copilot (Ctrl+B)"}
           >
-            <Menu size={14} className="text-orange-600" />
-            <span>Menu</span>
-            <ChevronDown size={12} className={`transition-transform duration-200 ${menuOpen ? "rotate-180" : ""} ${isLight ? "text-slate-600" : "text-zinc-400"}`} />
+            <Sparkles size={13} className={isChatOpen ? "text-orange-600" : isLight ? "text-slate-500" : "text-zinc-400"} />
+            <span>Copilot</span>
+            {isChatOpen ? <PanelRightClose size={13} className="opacity-70" /> : <PanelRightOpen size={13} className="opacity-70" />}
           </button>
+
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-semibold transition shadow-xs ${
+                menuOpen
+                  ? (isLight ? "bg-slate-200 border-slate-400 text-slate-950" : "bg-zinc-800 border-zinc-600 text-zinc-100")
+                  : (isLight ? "bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-900" : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200")
+              }`}
+              title="Options and settings"
+            >
+              <Menu size={14} className="text-orange-600" />
+              <span>Menu</span>
+              <ChevronDown size={12} className={`transition-transform duration-200 ${menuOpen ? "rotate-180" : ""} ${isLight ? "text-slate-600" : "text-zinc-400"}`} />
+            </button>
 
           {/* Consolidated Dropdown Menu Panel */}
           {menuOpen && (
@@ -818,6 +848,25 @@ export function App() {
               </div>
               <button
                 onClick={() => {
+                  setIsChatOpen(!isChatOpen);
+                  setMenuOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-1.5 transition font-medium ${
+                  isLight ? "hover:bg-slate-100 text-slate-900" : "hover:bg-zinc-800 text-zinc-200"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles size={14} className="text-orange-600" />
+                  <span>{isChatOpen ? "Hide Copilot Sidebar" : "Show Copilot Sidebar"}</span>
+                </div>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+                  isLight ? "bg-slate-100 border-slate-300 text-slate-700 font-semibold" : "bg-zinc-800 border-zinc-700 text-zinc-400"
+                }`}>
+                  {isChatOpen ? "Visible" : "Hidden"}
+                </span>
+              </button>
+              <button
+                onClick={() => {
                   setMenuOpen(false);
                   setApiKeyModalOpen(true);
                 }}
@@ -841,7 +890,8 @@ export function App() {
             </div>
           )}
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* Main Workspace (3-Column Layout with Resizable Panels) */}
       <div className="flex-1 flex overflow-hidden relative">
@@ -971,43 +1021,48 @@ export function App() {
         </div>
 
         {/* Right Resizer Handle */}
-        <div
-          onMouseDown={(e) => {
-            e.preventDefault();
-            setIsDraggingRight(true);
-          }}
-          className={`w-1.5 hover:w-2 transition-all cursor-col-resize z-20 select-none flex items-center justify-center relative group shrink-0 ${
-            isDraggingRight
-              ? "bg-orange-500 w-2"
-              : isLight
-              ? "bg-slate-300 hover:bg-orange-500/80"
-              : "bg-zinc-800 hover:bg-orange-500/80"
-          }`}
-          title="Drag to resize AI chat"
-        >
-          <div className={`w-0.5 h-8 rounded-full transition-colors ${
-            isLight ? "bg-slate-500 group-hover:bg-white" : "bg-zinc-600 group-hover:bg-white"
-          }`} />
-        </div>
+        {isChatOpen && (
+          <div
+            onMouseDown={(e) => {
+              e.preventDefault();
+              setIsDraggingRight(true);
+            }}
+            className={`w-1.5 hover:w-2 transition-all cursor-col-resize z-20 select-none flex items-center justify-center relative group shrink-0 ${
+              isDraggingRight
+                ? "bg-orange-500 w-2"
+                : isLight
+                ? "bg-slate-300 hover:bg-orange-500/80"
+                : "bg-zinc-800 hover:bg-orange-500/80"
+            }`}
+            title="Drag to resize AI chat"
+          >
+            <div className={`w-0.5 h-8 rounded-full transition-colors ${
+              isLight ? "bg-slate-500 group-hover:bg-white" : "bg-zinc-600 group-hover:bg-white"
+            }`} />
+          </div>
+        )}
 
         {/* Right Panel: Gemini CAD Copilot */}
-        <div
-          style={{ width: `${chatWidth}px` }}
-          className={`shrink-0 flex flex-col overflow-hidden transition-colors ${
-            isLight ? "bg-slate-50" : "bg-zinc-900"
-          }`}
-        >
-          <ChatSidebar
-            currentCode={code}
-            onApplyCode={(newCode) => {
-              setCode(newCode);
-              executeRender(newCode);
-            }}
-            lastCompilerError={lastCompilerError}
-            onRequestSnapshot={() => viewportRef.current?.getSnapshot() || null}
-            theme={theme}
-          />
-        </div>
+        {isChatOpen && (
+          <div
+            style={{ width: `${chatWidth}px` }}
+            className={`shrink-0 flex flex-col overflow-hidden transition-colors ${
+              isLight ? "bg-slate-50" : "bg-zinc-900"
+            }`}
+          >
+            <ChatSidebar
+              currentCode={code}
+              onApplyCode={(newCode) => {
+                setCode(newCode);
+                executeRender(newCode);
+              }}
+              lastCompilerError={lastCompilerError}
+              onRequestSnapshot={() => viewportRef.current?.getSnapshot() || null}
+              theme={theme}
+              onClose={() => setIsChatOpen(false)}
+            />
+          </div>
+        )}
       </div>
 
       {/* API Key Modal */}

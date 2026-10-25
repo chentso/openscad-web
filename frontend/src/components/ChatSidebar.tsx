@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  Send, Sparkles, Wrench, Eye, Check, AlertTriangle, ArrowRight, Bot, User, RefreshCw
+  Send, Sparkles, Wrench, Eye, Check, AlertTriangle, ArrowRight, Bot, User, RefreshCw, PanelRightClose
 } from "lucide-react";
 
 interface Message {
@@ -14,6 +14,7 @@ interface ChatSidebarProps {
   lastCompilerError?: string;
   onRequestSnapshot: () => string | null;
   theme?: "dark" | "light";
+  onClose?: () => void;
 }
 
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
@@ -21,7 +22,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onApplyCode,
   lastCompilerError,
   onRequestSnapshot,
-  theme = "dark"
+  theme = "dark",
+  onClose
 }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -294,19 +296,34 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             Gemini CAD Copilot
           </span>
         </div>
-        <select
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-          className={`border rounded px-2 py-1 text-[11px] focus:outline-none focus:border-orange-500 font-mono transition-colors ${
-            isLight
-              ? "bg-slate-100 border-slate-300 text-slate-800"
-              : "bg-zinc-800 border-zinc-700 text-zinc-300"
-          }`}
-        >
-          <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
-          <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
-          <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-        </select>
+        <div className="flex items-center gap-1.5">
+          <select
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className={`border rounded px-2 py-1 text-[11px] focus:outline-none focus:border-orange-500 font-mono transition-colors ${
+              isLight
+                ? "bg-slate-100 border-slate-300 text-slate-800"
+                : "bg-zinc-800 border-zinc-700 text-zinc-300"
+            }`}
+          >
+            <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+            <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
+            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+          </select>
+          {onClose && (
+            <button
+              onClick={onClose}
+              title="Hide Gemini Sidebar"
+              className={`p-1 rounded transition border ${
+                isLight
+                  ? "bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700 hover:text-slate-950"
+                  : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-400 hover:text-zinc-100"
+              }`}
+            >
+              <PanelRightClose size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Compiler Error Quick-Fix Callout Banner */}
