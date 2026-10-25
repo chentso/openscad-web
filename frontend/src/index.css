@@ -7,9 +7,15 @@ html, body, #root {
   height: 100%;
   overflow: hidden;
   background-color: #09090b;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Custom scrollbar for dark CAD UI */
+html.light, html.light body, html.light #root {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -23,4 +29,15 @@ html, body, #root {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #52525b;
+}
+
+html.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

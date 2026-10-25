@@ -16,6 +16,7 @@ interface Viewport3DProps {
   renderTimeMs?: number;
   engineName?: string;
   errorMessage?: string;
+  theme?: "dark" | "light";
 }
 
 export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
@@ -23,7 +24,8 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
   isLoading,
   renderTimeMs,
   engineName,
-  errorMessage: externalError
+  errorMessage: externalError,
+  theme = "dark"
 }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -170,7 +172,7 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
 
     // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#1e1e24"); // OpenSCAD dark canvas tone
+    scene.background = new THREE.Color(theme === "light" ? "#f1f5f9" : "#1e1e24"); // OpenSCAD canvas tone
     sceneRef.current = scene;
 
     // Camera (FOV 25 matching OpenSCAD's telephoto CAD perspective)
@@ -366,6 +368,13 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
     }
   }, [stlData]);
 
+  // Theme background update
+  useEffect(() => {
+    if (sceneRef.current) {
+      sceneRef.current.background = new THREE.Color(theme === "light" ? "#f1f5f9" : "#1e1e24");
+    }
+  }, [theme]);
+
   // Wireframe toggle
   useEffect(() => {
     if (meshRef.current) {
@@ -393,45 +402,65 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
   const activeError = externalError || parseError;
 
   return (
-    <div className="relative w-full h-full bg-zinc-950 overflow-hidden select-none">
+    <div className={`relative w-full h-full overflow-hidden select-none ${theme === "light" ? "bg-slate-100" : "bg-zinc-950"}`}>
       {/* 3D Canvas Mount Point */}
       <div ref={containerRef} className="absolute inset-0 overflow-hidden" />
 
       {/* Top HUD Overlay */}
-      <div className="absolute top-3 left-3 flex items-center gap-2 bg-zinc-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-zinc-700/60 text-xs text-zinc-300 pointer-events-none">
+      <div className={`absolute top-3 left-3 flex items-center gap-2 backdrop-blur-md px-3 py-1.5 rounded-lg border text-xs pointer-events-none transition-colors ${
+        theme === "light"
+          ? "bg-white/90 border-slate-200 text-slate-700 shadow-xs"
+          : "bg-zinc-900/80 border-zinc-700/60 text-zinc-300"
+      }`}>
         <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-        <span className="font-semibold text-zinc-100">{engineName || "OpenSCAD Nightly"}</span>
+        <span className={`font-semibold ${theme === "light" ? "text-slate-900" : "text-zinc-100"}`}>
+          {engineName || "OpenSCAD Nightly"}
+        </span>
         {renderTimeMs !== undefined && (
-          <span className="text-zinc-400">({renderTimeMs}ms)</span>
+          <span className={theme === "light" ? "text-slate-500" : "text-zinc-400"}>({renderTimeMs}ms)</span>
         )}
         {polyCount !== null && (
-          <span className="text-zinc-400">• {polyCount.toLocaleString()} triangles</span>
+          <span className={theme === "light" ? "text-slate-500" : "text-zinc-400"}>• {polyCount.toLocaleString()} triangles</span>
         )}
       </div>
 
       {/* Quick View Presets (OpenSCAD Style: Top, Front, Right, Iso) */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center bg-zinc-900/80 backdrop-blur-md p-1 rounded-lg border border-zinc-700/60 text-xs text-zinc-300 z-10 gap-1">
+      <div className={`absolute top-3 left-1/2 -translate-x-1/2 flex items-center backdrop-blur-md p-1 rounded-lg border text-xs z-10 gap-1 transition-colors ${
+        theme === "light"
+          ? "bg-white/90 border-slate-200 text-slate-700 shadow-xs"
+          : "bg-zinc-900/80 border-zinc-700/60 text-zinc-300"
+      }`}>
         <button
           onClick={() => alignCameraToView("top")}
-          className="px-2 py-0.5 rounded hover:bg-zinc-800 text-[11px] font-mono transition"
+          className={`px-2 py-0.5 rounded text-[11px] font-mono transition ${
+            theme === "light" ? "hover:bg-slate-100 text-slate-700" : "hover:bg-zinc-800"
+          }`}
         >
           Top
         </button>
         <button
           onClick={() => alignCameraToView("front")}
-          className="px-2 py-0.5 rounded hover:bg-zinc-800 text-[11px] font-mono transition"
+          className={`px-2 py-0.5 rounded text-[11px] font-mono transition ${
+            theme === "light" ? "hover:bg-slate-100 text-slate-700" : "hover:bg-zinc-800"
+          }`}
         >
           Front
         </button>
         <button
           onClick={() => alignCameraToView("right")}
-          className="px-2 py-0.5 rounded hover:bg-zinc-800 text-[11px] font-mono transition"
+          className={`px-2 py-0.5 rounded text-[11px] font-mono transition ${
+            theme === "light" ? "hover:bg-slate-100 text-slate-700" : "hover:bg-zinc-800"
+          }`}
         >
           Right
         </button>
         <button
           onClick={() => alignCameraToView("iso")}
-          className="px-2 py-0.5 rounded bg-zinc-800 text-orange-400 text-[11px] font-mono transition flex items-center gap-1"
+          className={`px-2 py-0.5 rounded text-[11px] font-mono transition flex items-center gap-1 ${
+            theme === "light"
+              ? "bg-orange-50 text-orange-600 font-semibold border border-orange-200"
+              : "bg-zinc-800 text-orange-400"
+          }`}
         >
           <Compass size={11} />
           Iso (55°, 25°)
@@ -439,32 +468,48 @@ export const Viewport3D = forwardRef<Viewport3DHandle, Viewport3DProps>(({
       </div>
 
       {/* Viewport Control Tools (Right side) */}
-      <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-zinc-900/80 backdrop-blur-md p-1 rounded-lg border border-zinc-700/60 text-zinc-300 z-10">
+      <div className={`absolute top-3 right-3 flex items-center gap-1.5 backdrop-blur-md p-1 rounded-lg border z-10 transition-colors ${
+        theme === "light"
+          ? "bg-white/90 border-slate-200 text-slate-700 shadow-xs"
+          : "bg-zinc-900/80 border-zinc-700/60 text-zinc-300"
+      }`}>
         <button
           onClick={() => setShowEdges(!showEdges)}
           title="Toggle CAD Feature Edges"
-          className={`p-1.5 rounded hover:bg-zinc-800 transition ${showEdges ? "text-amber-400 bg-zinc-800" : ""}`}
+          className={`p-1.5 rounded transition ${
+            showEdges
+              ? (theme === "light" ? "text-amber-600 bg-amber-50" : "text-amber-400 bg-zinc-800")
+              : (theme === "light" ? "hover:bg-slate-100" : "hover:bg-zinc-800")
+          }`}
         >
           <Eye size={16} />
         </button>
         <button
           onClick={() => setWireframe(!wireframe)}
           title="Toggle Pure Wireframe"
-          className={`p-1.5 rounded hover:bg-zinc-800 transition ${wireframe ? "text-orange-400 bg-zinc-800" : ""}`}
+          className={`p-1.5 rounded transition ${
+            wireframe
+              ? (theme === "light" ? "text-orange-600 bg-orange-50" : "text-orange-400 bg-zinc-800")
+              : (theme === "light" ? "hover:bg-slate-100" : "hover:bg-zinc-800")
+          }`}
         >
           <Box size={16} />
         </button>
         <button
           onClick={() => setShowAxes(!showAxes)}
           title="Toggle OpenSCAD Axes (10mm ticks)"
-          className={`p-1.5 rounded hover:bg-zinc-800 transition ${showAxes ? "text-cyan-400 bg-zinc-800" : ""}`}
+          className={`p-1.5 rounded transition ${
+            showAxes
+              ? (theme === "light" ? "text-cyan-700 bg-cyan-50" : "text-cyan-400 bg-zinc-800")
+              : (theme === "light" ? "hover:bg-slate-100" : "hover:bg-zinc-800")
+          }`}
         >
           <Crosshair size={16} />
         </button>
         <button
           onClick={() => alignCameraToView("iso")}
           title="Reset Camera View (View All)"
-          className="p-1.5 rounded hover:bg-zinc-800 transition"
+          className={`p-1.5 rounded transition ${theme === "light" ? "hover:bg-slate-100" : "hover:bg-zinc-800"}`}
         >
           <RotateCcw size={16} />
         </button>

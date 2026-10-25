@@ -13,13 +13,15 @@ interface ChatSidebarProps {
   onApplyCode: (newCode: string) => void;
   lastCompilerError?: string;
   onRequestSnapshot: () => string | null;
+  theme?: "dark" | "light";
 }
 
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   currentCode,
   onApplyCode,
   lastCompilerError,
-  onRequestSnapshot
+  onRequestSnapshot,
+  theme = "dark"
 }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -274,20 +276,32 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
     }
   };
 
+  const isLight = theme === "light";
+
   return (
-    <div className="flex flex-col h-full bg-zinc-900 border-l border-zinc-800 text-zinc-200 text-xs">
+    <div className={`flex flex-col h-full border-l text-xs transition-colors ${
+      isLight ? "bg-slate-50 border-slate-200 text-slate-800" : "bg-zinc-900 border-zinc-800 text-zinc-200"
+    }`}>
       {/* Header */}
-      <div className="p-3 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/60">
+      <div className={`p-3 border-b flex items-center justify-between transition-colors ${
+        isLight ? "bg-white border-slate-200" : "bg-zinc-950/60 border-zinc-800"
+      }`}>
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-orange-400" />
-          <span className="font-semibold text-zinc-100 uppercase tracking-wider text-[11px]">
+          <Sparkles className="w-4 h-4 text-orange-500" />
+          <span className={`font-semibold uppercase tracking-wider text-[11px] ${
+            isLight ? "text-slate-900" : "text-zinc-100"
+          }`}>
             Gemini CAD Copilot
           </span>
         </div>
         <select
           value={selectedModel}
           onChange={(e) => setSelectedModel(e.target.value)}
-          className="bg-zinc-800 text-zinc-300 border border-zinc-700 rounded px-2 py-1 text-[11px] focus:outline-none focus:border-orange-500 font-mono"
+          className={`border rounded px-2 py-1 text-[11px] focus:outline-none focus:border-orange-500 font-mono transition-colors ${
+            isLight
+              ? "bg-slate-100 border-slate-300 text-slate-800"
+              : "bg-zinc-800 border-zinc-700 text-zinc-300"
+          }`}
         >
           <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
           <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
@@ -324,7 +338,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               key={idx}
               className={`flex flex-col gap-1.5 ${isUser ? "items-end" : "items-start"}`}
             >
-              <div className="flex items-center gap-1 text-[10px] text-zinc-400 font-medium">
+              <div className={`flex items-center gap-1 text-[10px] font-medium ${
+                isLight ? "text-slate-500" : "text-zinc-400"
+              }`}>
                 {isUser ? (
                   <>
                     <span>You</span>
@@ -332,8 +348,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                   </>
                 ) : (
                   <>
-                    <Bot size={11} className="text-orange-400" />
-                    <span className="text-orange-400">Gemini</span>
+                    <Bot size={11} className="text-orange-500" />
+                    <span className="text-orange-500">Gemini</span>
                   </>
                 )}
               </div>
@@ -341,7 +357,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               <div
                 className={`p-3 rounded-xl max-w-[95%] leading-relaxed ${
                   isUser
-                    ? "bg-orange-600 text-white"
+                    ? "bg-orange-600 text-white shadow-xs"
+                    : isLight
+                    ? "bg-white text-slate-800 border border-slate-200/90 shadow-xs"
                     : "bg-zinc-800/90 text-zinc-200 border border-zinc-700/60"
                 }`}
               >
@@ -349,8 +367,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
                 {/* 1-Click Apply Code Button */}
                 {codeSnippet && (
-                  <div className="mt-3 pt-2.5 border-t border-zinc-700/80 flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-mono text-zinc-400">
+                  <div className={`mt-3 pt-2.5 border-t flex items-center justify-between gap-2 ${
+                    isLight ? "border-slate-200" : "border-zinc-700/80"
+                  }`}>
+                    <span className={`text-[10px] font-mono ${isLight ? "text-slate-500" : "text-zinc-400"}`}>
                       OpenSCAD Code Block Ready
                     </span>
                     <button
@@ -379,7 +399,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
         })}
         {isStreaming && (
           <div className="flex items-center gap-2 text-zinc-500 text-xs italic">
-            <RefreshCw size={12} className="animate-spin text-orange-400" />
+            <RefreshCw size={12} className="animate-spin text-orange-500" />
             Gemini is reasoning and writing code...
           </div>
         )}
@@ -387,29 +407,45 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       </div>
 
       {/* Quick Action Pills */}
-      <div className="px-3 py-1.5 border-t border-zinc-800 flex gap-1.5 overflow-x-auto no-scrollbar bg-zinc-950/40">
+      <div className={`px-3 py-1.5 border-t flex gap-1.5 overflow-x-auto no-scrollbar transition-colors ${
+        isLight ? "border-slate-200 bg-slate-100/60" : "border-zinc-800 bg-zinc-950/40"
+      }`}>
         <button
           onClick={() => handleSend("Create a parametric box with sliding lid and screw holes")}
-          className="whitespace-nowrap px-2 py-0.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] transition border border-zinc-700"
+          className={`whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] transition border ${
+            isLight
+              ? "bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-2xs"
+              : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700"
+          }`}
         >
           📦 Parametric Enclosure
         </button>
         <button
           onClick={handleVisionReview}
-          className="whitespace-nowrap px-2 py-0.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] transition border border-zinc-700 flex items-center gap-1"
+          className={`whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] transition border flex items-center gap-1 ${
+            isLight
+              ? "bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-2xs"
+              : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700"
+          }`}
         >
           <Eye size={10} /> 3D Vision Review
         </button>
         <button
           onClick={() => handleSend("Add rounded chamfers and fillets to the edges")}
-          className="whitespace-nowrap px-2 py-0.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] transition border border-zinc-700"
+          className={`whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] transition border ${
+            isLight
+              ? "bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-2xs"
+              : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700"
+          }`}
         >
           ✨ Add Chamfers
         </button>
       </div>
 
       {/* Prompt Input Box */}
-      <div className="p-3 border-t border-zinc-800 bg-zinc-950">
+      <div className={`p-3 border-t transition-colors ${
+        isLight ? "border-slate-200 bg-white" : "border-zinc-800 bg-zinc-950"
+      }`}>
         <div className="relative flex items-center">
           <textarea
             value={input}
@@ -422,7 +458,11 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             }}
             placeholder="Ask Gemini to edit code or build a new model... (Shift+Enter for newline)"
             rows={2}
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-lg pl-3 pr-10 py-2 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-orange-500 resize-none font-sans text-xs"
+            className={`w-full border rounded-lg pl-3 pr-10 py-2 resize-none font-sans text-xs focus:outline-none focus:border-orange-500 transition-colors ${
+              isLight
+                ? "bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400"
+                : "bg-zinc-900 border-zinc-700 text-zinc-200 placeholder-zinc-500"
+            }`}
           />
           <button
             onClick={() => handleSend()}

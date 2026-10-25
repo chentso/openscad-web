@@ -21,6 +21,7 @@ interface FileManagerModalProps {
   onSavedCurrentFile: (filename: string) => void;
   onNewModel?: () => void;
   initialMode?: "browse" | "save_as";
+  theme?: "dark" | "light";
 }
 
 export const FileManagerModal: React.FC<FileManagerModalProps> = ({
@@ -31,8 +32,10 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
   onOpenFile,
   onSavedCurrentFile,
   onNewModel,
-  initialMode = "browse"
+  initialMode = "browse",
+  theme = "dark"
 }) => {
+  const isLight = theme === "light";
   const [files, setFiles] = useState<ServerFile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -229,29 +232,39 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-zinc-900 border border-zinc-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh] text-zinc-200">
+    <div className={`fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-colors ${
+      isLight ? "bg-slate-900/40" : "bg-black/75"
+    }`}>
+      <div className={`border rounded-2xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh] transition-colors ${
+        isLight ? "bg-white border-slate-200 text-slate-800" : "bg-zinc-900 border-zinc-700/80 text-zinc-200"
+      }`}>
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+        <div className={`flex items-center justify-between border-b pb-4 ${
+          isLight ? "border-slate-200" : "border-zinc-800"
+        }`}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-orange-600/10 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-inner">
+            <div className="w-9 h-9 rounded-xl bg-orange-600/10 border border-orange-500/30 flex items-center justify-center text-orange-500 shadow-inner">
               <HardDrive size={18} />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+              <h2 className={`text-sm font-semibold flex items-center gap-2 ${
+                isLight ? "text-slate-900" : "text-zinc-100"
+              }`}>
                 Server Models
-                <span className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700 font-mono">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full border font-mono ${
+                  isLight ? "bg-slate-100 text-slate-600 border-slate-200" : "bg-zinc-800 text-zinc-400 border-zinc-700"
+                }`}>
                   models/
                 </span>
               </h2>
-              <p className="text-[11px] text-zinc-400">
+              <p className={`text-[11px] ${isLight ? "text-slate-500" : "text-zinc-400"}`}>
                 OpenSCAD projects stored directly on the server filesystem
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-200 p-1 rounded-md transition"
+            className={`p-1 rounded-md transition ${isLight ? "text-slate-400 hover:text-slate-600" : "text-zinc-400 hover:text-zinc-200"}`}
           >
             <X size={16} />
           </button>
@@ -271,12 +284,16 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
         {/* Save As Mode View */}
         {mode === "save_as" ? (
           <div className="py-6 space-y-4">
-            <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 space-y-3">
-              <label className="block text-xs font-medium text-zinc-300">
+            <div className={`border rounded-xl p-4 space-y-3 ${
+              isLight ? "bg-slate-50 border-slate-200" : "bg-zinc-950 border-zinc-800"
+            }`}>
+              <label className={`block text-xs font-medium ${isLight ? "text-slate-700" : "text-zinc-300"}`}>
                 Save Current Model to Server
               </label>
-              <div className="flex items-center bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 focus-within:border-orange-500">
-                <FileCode size={16} className="text-orange-400 mr-2 shrink-0" />
+              <div className={`flex items-center border rounded-lg px-3 py-2 focus-within:border-orange-500 ${
+                isLight ? "bg-white border-slate-300" : "bg-zinc-900 border-zinc-700"
+              }`}>
+                <FileCode size={16} className="text-orange-500 mr-2 shrink-0" />
                 <input
                   type="text"
                   value={saveAsInput}
@@ -284,11 +301,13 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
                   onKeyDown={(e) => e.key === "Enter" && handleSaveAs()}
                   placeholder="model_name.scad"
                   autoFocus
-                  className="bg-transparent text-zinc-100 font-mono text-xs w-full outline-none"
+                  className={`bg-transparent font-mono text-xs w-full outline-none ${
+                    isLight ? "text-slate-900" : "text-zinc-100"
+                  }`}
                 />
               </div>
-              <p className="text-[11px] text-zinc-500">
-                Will be saved as <span className="font-mono text-zinc-300">models/{saveAsInput.endsWith(".scad") ? saveAsInput : `${saveAsInput}.scad`}</span>
+              <p className={`text-[11px] ${isLight ? "text-slate-500" : "text-zinc-500"}`}>
+                Will be saved as <span className={`font-mono ${isLight ? "text-slate-800" : "text-zinc-300"}`}>models/{saveAsInput.endsWith(".scad") ? saveAsInput : `${saveAsInput}.scad`}</span>
               </p>
             </div>
 
@@ -296,7 +315,9 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
               <button
                 type="button"
                 onClick={() => setMode("browse")}
-                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-4 py-2 rounded-lg text-xs font-medium transition"
+                className={`px-4 py-2 rounded-lg text-xs font-medium transition ${
+                  isLight ? "bg-slate-100 hover:bg-slate-200 text-slate-700" : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
+                }`}
               >
                 Back to Files
               </button>
@@ -317,17 +338,21 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
             {/* Action Bar */}
             <div className="flex items-center justify-between gap-2">
               {/* Search input */}
-              <div className="flex-1 flex items-center bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 focus-within:border-orange-500 text-xs">
-                <Search size={13} className="text-zinc-500 mr-2 shrink-0" />
+              <div className={`flex-1 flex items-center border rounded-lg px-2.5 py-1.5 focus-within:border-orange-500 text-xs ${
+                isLight ? "bg-slate-50 border-slate-300" : "bg-zinc-950 border-zinc-800"
+              }`}>
+                <Search size={13} className={`mr-2 shrink-0 ${isLight ? "text-slate-400" : "text-zinc-500"}`} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search models..."
-                  className="bg-transparent text-zinc-200 outline-none w-full text-xs"
+                  className={`bg-transparent outline-none w-full text-xs ${
+                    isLight ? "text-slate-900 placeholder-slate-400" : "text-zinc-200 placeholder-zinc-500"
+                  }`}
                 />
                 {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} className="text-zinc-500 hover:text-zinc-300">
+                  <button onClick={() => setSearchQuery("")} className={isLight ? "text-slate-400 hover:text-slate-600" : "text-zinc-500 hover:text-zinc-300"}>
                     <X size={12} />
                   </button>
                 )}
@@ -341,10 +366,14 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
                     onNewModel();
                     onClose();
                   }}
-                  className="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm shrink-0"
+                  className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm shrink-0 ${
+                    isLight
+                      ? "bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800"
+                      : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200"
+                  }`}
                   title="Clear editor and start a new model"
                 >
-                  <Plus size={13} className="text-orange-400" />
+                  <Plus size={13} className="text-orange-500" />
                   New Model
                 </button>
               )}
@@ -369,7 +398,11 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0"
+                className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 ${
+                  isLight
+                    ? "bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700"
+                    : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300"
+                }`}
                 title="Upload a .scad file from your computer"
               >
                 <Upload size={13} />
@@ -378,7 +411,11 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
             </div>
 
             {/* Files List */}
-            <div className="flex-1 overflow-y-auto border border-zinc-800 rounded-xl bg-zinc-950 divide-y divide-zinc-800/60 min-h-[240px]">
+            <div className={`flex-1 overflow-y-auto border rounded-xl divide-y min-h-[240px] transition-colors ${
+              isLight
+                ? "border-slate-200 bg-slate-50/50 divide-slate-200/80"
+                : "border-zinc-800 bg-zinc-950 divide-zinc-800/60"
+            }`}>
               {isLoading && files.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-48 text-zinc-500 space-y-2">
                   <Loader2 size={24} className="animate-spin text-orange-500" />
@@ -399,8 +436,10 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
                   return (
                     <div
                       key={file.name}
-                      className={`flex items-center justify-between p-3 transition hover:bg-zinc-900/80 ${
-                        isCurrent ? "bg-orange-500/5" : ""
+                      className={`flex items-center justify-between p-3 transition ${
+                        isLight
+                          ? (isCurrent ? "bg-orange-50/70 border-l-2 border-orange-500" : "hover:bg-slate-100/80")
+                          : (isCurrent ? "bg-orange-500/10 border-l-2 border-orange-500" : "hover:bg-zinc-900/80")
                       }`}
                     >
                       {/* Left: Icon & Name */}
@@ -408,7 +447,9 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
                         <div
                           className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                             isCurrent
-                              ? "bg-orange-500/20 text-orange-400 border border-orange-500/30"
+                              ? "bg-orange-500/20 text-orange-500 border border-orange-500/30"
+                              : isLight
+                              ? "bg-slate-100 text-slate-500"
                               : "bg-zinc-800 text-zinc-400"
                           }`}
                         >
@@ -426,18 +467,22 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
                                 if (e.key === "Escape") setRenamingFile(null);
                               }}
                               autoFocus
-                              className="bg-zinc-900 border border-orange-500 rounded px-2 py-1 text-xs font-mono text-zinc-100 outline-none flex-1"
+                              className={`border rounded px-2 py-1 text-xs font-mono outline-none flex-1 ${
+                                isLight
+                                  ? "bg-white border-orange-500 text-slate-900"
+                                  : "bg-zinc-900 border-orange-500 text-zinc-100"
+                              }`}
                             />
                             <span className="text-zinc-500 font-mono text-xs">.scad</span>
                             <button
                               onClick={() => handleConfirmRename(file.name)}
-                              className="p-1 hover:bg-zinc-800 rounded text-emerald-400"
+                              className="p-1 hover:bg-slate-200/60 dark:hover:bg-zinc-800 rounded text-emerald-500"
                             >
                               <Check size={14} />
                             </button>
                             <button
                               onClick={() => setRenamingFile(null)}
-                              className="p-1 hover:bg-zinc-800 rounded text-zinc-400"
+                              className="p-1 hover:bg-slate-200/60 dark:hover:bg-zinc-800 rounded text-zinc-400"
                             >
                               <X size={14} />
                             </button>
@@ -447,18 +492,24 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
                             <div className="flex items-center gap-2">
                               <span
                                 onClick={() => handleOpen(file.name)}
-                                className="font-mono text-xs font-medium text-zinc-200 hover:text-orange-400 cursor-pointer truncate"
+                                className={`font-mono text-xs font-medium cursor-pointer truncate transition-colors ${
+                                  isLight
+                                    ? "text-slate-800 hover:text-orange-600"
+                                    : "text-zinc-200 hover:text-orange-400"
+                                }`}
                                 title="Click to open"
                               >
                                 {file.name}
                               </span>
                               {isCurrent && (
-                                <span className="bg-orange-500/20 text-orange-400 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-orange-500/30 shrink-0">
+                                <span className="bg-orange-500/15 text-orange-600 dark:text-orange-400 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-orange-500/30 shrink-0">
                                   Current
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-zinc-500 flex items-center gap-3 mt-0.5">
+                            <div className={`text-[11px] flex items-center gap-3 mt-0.5 ${
+                              isLight ? "text-slate-400" : "text-zinc-500"
+                            }`}>
                               <span>{file.size_formatted}</span>
                               <span>•</span>
                               <span>{file.modified_formatted}</span>
@@ -471,28 +522,38 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => handleOpen(file.name)}
-                          className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-2.5 py-1 rounded-md text-xs font-medium transition flex items-center gap-1"
+                          className={`px-2.5 py-1 rounded-md text-xs font-medium transition flex items-center gap-1 border ${
+                            isLight
+                              ? "bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800"
+                              : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200"
+                          }`}
                         >
                           <FolderOpen size={12} />
                           Open
                         </button>
                         <button
                           onClick={() => handleDownloadCopy(file.name)}
-                          className="p-1.5 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded-md transition"
+                          className={`p-1.5 rounded-md transition ${
+                            isLight ? "hover:bg-slate-200 text-slate-500 hover:text-slate-800" : "hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+                          }`}
                           title="Download a copy"
                         >
                           <Download size={13} />
                         </button>
                         <button
                           onClick={() => handleStartRename(file.name)}
-                          className="p-1.5 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded-md transition"
+                          className={`p-1.5 rounded-md transition ${
+                            isLight ? "hover:bg-slate-200 text-slate-500 hover:text-slate-800" : "hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+                          }`}
                           title="Rename file"
                         >
                           <Edit3 size={13} />
                         </button>
                         <button
                           onClick={() => handleDelete(file.name)}
-                          className="p-1.5 hover:bg-zinc-800 text-zinc-400 hover:text-red-400 rounded-md transition"
+                          className={`p-1.5 rounded-md transition ${
+                            isLight ? "hover:bg-red-50 text-slate-500 hover:text-red-600" : "hover:bg-zinc-800 text-zinc-400 hover:text-red-400"
+                          }`}
                           title="Delete file"
                         >
                           <Trash2 size={13} />
@@ -505,9 +566,11 @@ export const FileManagerModal: React.FC<FileManagerModalProps> = ({
             </div>
 
             {/* Footer summary */}
-            <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1">
+            <div className={`flex items-center justify-between text-[11px] pt-1 ${
+              isLight ? "text-slate-500" : "text-zinc-500"
+            }`}>
               <span>{files.length} model{files.length === 1 ? "" : "s"} on server</span>
-              <span>Saved in <code className="text-zinc-400">./models/</code></span>
+              <span>Saved in <code className={isLight ? "text-slate-700" : "text-zinc-400"}>./models/</code></span>
             </div>
           </div>
         )}

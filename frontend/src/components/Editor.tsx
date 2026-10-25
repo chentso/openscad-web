@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import type { OnMount } from "@monaco-editor/react";
 
@@ -6,13 +6,16 @@ interface EditorProps {
   code: string;
   onChange: (value: string) => void;
   onRun?: () => void;
+  theme?: "dark" | "light";
 }
 
-export const Editor: React.FC<EditorProps> = ({ code, onChange, onRun }) => {
+export const Editor: React.FC<EditorProps> = ({ code, onChange, onRun, theme = "dark" }) => {
   const editorRef = useRef<any>(null);
+  const monacoRef = useRef<any>(null);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
 
     // Register OpenSCAD language if not already registered
     if (!monaco.languages.getLanguages().some((l: any) => l.id === "openscad")) {
@@ -106,9 +109,31 @@ export const Editor: React.FC<EditorProps> = ({ code, onChange, onRun }) => {
           "editorIndentGuide.activeBackground": "#3f3f46"
         }
       });
+
+      monaco.editor.defineTheme("openscad-light", {
+        base: "vs",
+        inherit: true,
+        rules: [
+          { token: "keyword", foreground: "e11d48", fontStyle: "bold" },
+          { token: "type.identifier", foreground: "0284c7" },
+          { token: "variable.predefined", foreground: "d97706", fontStyle: "bold" },
+          { token: "comment", foreground: "64748b", fontStyle: "italic" },
+          { token: "string", foreground: "059669" },
+          { token: "number", foreground: "7c3aed" }
+        ],
+        colors: {
+          "editor.background": "#ffffff",
+          "editor.lineHighlightBackground": "#f8fafc",
+          "editorLineNumber.foreground": "#94a3b8",
+          "editorLineNumber.activeForeground": "#334155",
+          "editorIndentGuide.background": "#e2e8f0",
+          "editorIndentGuide.activeBackground": "#cbd5e1"
+        }
+      });
     }
 
-    monaco.editor.setTheme("openscad-dark");
+    const currentTheme = theme === "light" ? "openscad-light" : "openscad-dark";
+    monaco.editor.setTheme(currentTheme);
 
     // Add keyboard shortcut (F5 or Ctrl+Enter to trigger re-render)
     editor.addCommand(monaco.KeyCode.F5, () => {
@@ -119,14 +144,22 @@ export const Editor: React.FC<EditorProps> = ({ code, onChange, onRun }) => {
     });
   };
 
+  const activeThemeName = theme === "light" ? "openscad-light" : "openscad-dark";
+
+  useEffect(() => {
+    if (monacoRef.current) {
+      monacoRef.current.editor.setTheme(activeThemeName);
+    }
+  }, [theme, activeThemeName]);
+
   return (
-    <div className="w-full h-full overflow-hidden bg-zinc-950">
+    <div className={`w-full h-full overflow-hidden ${theme === "light" ? "bg-white" : "bg-zinc-950"}`}>
       <MonacoEditor
         language="openscad"
         value={code}
         onChange={(val) => onChange(val || "")}
         onMount={handleEditorDidMount}
-        theme="openscad-dark"
+        theme={activeThemeName}
         options={{
           minimap: { enabled: false },
           fontSize: 13,

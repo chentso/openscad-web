@@ -7,7 +7,8 @@ import { Customizer } from "./components/Customizer";
 import { FileManagerModal } from "./components/FileManagerModal";
 import {
   Play, Download, Terminal, Settings as SettingsIcon,
-  Code, Sliders, ChevronDown, Cpu, Save, FolderOpen, Check, FilePlus, Loader2
+  Code, Sliders, ChevronDown, Cpu, Save, FolderOpen, Check, FilePlus, Loader2,
+  Sun, Moon
 } from "lucide-react";
 
 function generateTimestampedName(): string {
@@ -104,6 +105,27 @@ export function App() {
   const [fileManagerMode, setFileManagerMode] = useState<"browse" | "save_as">("browse");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const autoSaveTimerRef = useRef<any>(null);
+
+  // Day / Night Theme State
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    const saved = localStorage.getItem("openscad_theme");
+    return (saved === "light" || saved === "dark") ? saved : "dark";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("openscad_theme", theme);
+    if (theme === "light") {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
 
   // API Key & Backend status
   const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
@@ -478,26 +500,34 @@ export function App() {
     }
   };
 
+  const isLight = theme === "light";
+
   return (
-    <div className="flex flex-col h-screen w-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans select-none">
+    <div className={`flex flex-col h-screen w-screen overflow-hidden font-sans select-none transition-colors ${
+      isLight ? "bg-slate-100 text-slate-800" : "bg-zinc-950 text-zinc-100"
+    }`}>
       {/* Top Application Bar */}
-      <header className="h-12 border-b border-zinc-800 bg-zinc-900 px-4 flex items-center justify-between z-10 shrink-0">
+      <header className={`h-12 border-b px-4 flex items-center justify-between z-10 shrink-0 transition-colors ${
+        isLight ? "bg-white border-slate-200 text-slate-800 shadow-2xs" : "bg-zinc-900 border-zinc-800 text-zinc-100"
+      }`}>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center font-bold text-white text-xs shadow">
               CAD
             </div>
-            <h1 className="font-semibold text-sm tracking-wide text-zinc-100">
+            <h1 className={`font-semibold text-sm tracking-wide ${isLight ? "text-slate-900" : "text-zinc-100"}`}>
               OpenSCAD <span className="text-orange-500 font-normal">AI Studio</span>
             </h1>
           </div>
 
-          <div className="h-4 w-px bg-zinc-700 mx-1" />
+          <div className={`h-4 w-px mx-1 ${isLight ? "bg-slate-200" : "bg-zinc-700"}`} />
 
           {/* Engine Status Badge */}
-          <div className="flex items-center gap-2 bg-zinc-950/80 px-2.5 py-1 rounded-lg border border-zinc-800 text-xs">
-            <Cpu size={13} className="text-orange-400" />
-            <span className="font-medium text-zinc-300">Native Nightly (Manifold)</span>
+          <div className={`flex items-center gap-2 px-2.5 py-1 rounded-lg border text-xs transition-colors ${
+            isLight ? "bg-slate-50 border-slate-200 text-slate-700" : "bg-zinc-950/80 border-zinc-800 text-zinc-300"
+          }`}>
+            <Cpu size={13} className="text-orange-500" />
+            <span className={`font-medium ${isLight ? "text-slate-800" : "text-zinc-300"}`}>Native Nightly (Manifold)</span>
             <span
               className={`w-2 h-2 rounded-full ${
                 backendStatus === "connected" ? "bg-emerald-500" : "bg-red-500 animate-pulse"
@@ -506,7 +536,7 @@ export function App() {
             />
           </div>
 
-          <div className="h-4 w-px bg-zinc-700 mx-1" />
+          <div className={`h-4 w-px mx-1 ${isLight ? "bg-slate-200" : "bg-zinc-700"}`} />
 
           {/* Active Model & Server Quick Save */}
           <div className="flex items-center gap-1.5">
@@ -515,21 +545,25 @@ export function App() {
                 setFileManagerMode("browse");
                 setFileManagerOpen(true);
               }}
-              className="flex items-center gap-1.5 bg-zinc-950 hover:bg-zinc-800/80 px-2.5 py-1 rounded-lg border border-zinc-800 text-xs transition group"
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs transition group ${
+                isLight
+                  ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700"
+                  : "bg-zinc-950 hover:bg-zinc-800/80 border-zinc-800 text-zinc-200"
+              }`}
               title="Open Server File Browser"
             >
-              <FolderOpen size={13} className="text-orange-400 group-hover:text-orange-300" />
-              <span className="font-mono text-zinc-200 text-xs">{currentFilename}</span>
+              <FolderOpen size={13} className="text-orange-500 group-hover:text-orange-600" />
+              <span className={`font-mono text-xs ${isLight ? "text-slate-900" : "text-zinc-200"}`}>{currentFilename}</span>
               {isAutoSaving ? (
-                <span className="flex items-center gap-1 text-[10px] text-orange-400">
+                <span className="flex items-center gap-1 text-[10px] text-orange-500">
                   <Loader2 size={10} className="animate-spin" /> saving...
                 </span>
               ) : isDirty ? (
-                <span className="flex items-center gap-1 text-[10px] text-amber-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" /> unsaved
+                <span className="flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> unsaved
                 </span>
               ) : (
-                <span className="flex items-center gap-1 text-[10px] text-emerald-400/90">
+                <span className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400/90">
                   <Check size={10} /> {lastSavedTime ? `saved ${lastSavedTime}` : "saved"}
                 </span>
               )}
@@ -537,10 +571,14 @@ export function App() {
 
             <button
               onClick={handleNewModel}
-              className="flex items-center gap-1 bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700/80 text-zinc-300 px-2.5 py-1 rounded-lg text-xs font-medium transition"
+              className={`flex items-center gap-1 border px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                isLight
+                  ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700"
+                  : "bg-zinc-800/80 hover:bg-zinc-700 border-zinc-700/80 text-zinc-300"
+              }`}
               title="Clear editor and start a new model"
             >
-              <FilePlus size={12} className="text-orange-400" />
+              <FilePlus size={12} className="text-orange-500" />
               <span>New</span>
             </button>
 
@@ -548,12 +586,12 @@ export function App() {
               onClick={handleQuickSave}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-medium transition ${
                 isDirty
-                  ? "bg-amber-600/20 border-amber-500/50 text-amber-300 hover:bg-amber-600/30"
-                  : "bg-zinc-800/80 border-zinc-700/80 text-zinc-300 hover:bg-zinc-700"
+                  ? (isLight ? "bg-amber-100/70 border-amber-400 text-amber-900" : "bg-amber-600/20 border-amber-500/50 text-amber-300 hover:bg-amber-600/30")
+                  : (isLight ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700" : "bg-zinc-800/80 border-zinc-700/80 text-zinc-300 hover:bg-zinc-700")
               }`}
               title="Save to server (Ctrl+S)"
             >
-              <Save size={12} className={isDirty ? "text-amber-400" : "text-zinc-400"} />
+              <Save size={12} className={isDirty ? "text-amber-500" : isLight ? "text-slate-500" : "text-zinc-400"} />
               <span>Save</span>
             </button>
           </div>
@@ -570,7 +608,7 @@ export function App() {
             Render (F5)
           </button>
 
-          <label className="flex items-center gap-1.5 text-xs text-zinc-400 cursor-pointer ml-1" title="Automatically re-renders 3D mesh when code changes">
+          <label className={`flex items-center gap-1.5 text-xs cursor-pointer ml-1 ${isLight ? "text-slate-600" : "text-zinc-400"}`} title="Automatically re-renders 3D mesh when code changes">
             <input
               type="checkbox"
               checked={autoRender}
@@ -580,7 +618,7 @@ export function App() {
             <span>Auto</span>
           </label>
 
-          <label className="flex items-center gap-1.5 text-xs text-zinc-400 cursor-pointer ml-1" title="Automatically saves model to server after 2.5s of typing inactivity">
+          <label className={`flex items-center gap-1.5 text-xs cursor-pointer ml-1 ${isLight ? "text-slate-600" : "text-zinc-400"}`} title="Automatically saves model to server after 2.5s of typing inactivity">
             <input
               type="checkbox"
               checked={autoSaveEnabled}
@@ -591,49 +629,78 @@ export function App() {
           </label>
         </div>
 
-        {/* Right Menu / Status & Exports */}
-        <div className="flex items-center gap-3">
+        {/* Right Menu / Status, Theme & Exports */}
+        <div className="flex items-center gap-2.5">
+          {/* Day / Night Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition ${
+              isLight
+                ? "bg-amber-50 hover:bg-amber-100/90 border-amber-200 text-amber-800 shadow-2xs"
+                : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200"
+            }`}
+            title={isLight ? "Switch to Night Theme" : "Switch to Day Theme"}
+          >
+            {isLight ? (
+              <>
+                <Sun size={13} className="text-amber-500 fill-amber-400" />
+                <span>Day</span>
+              </>
+            ) : (
+              <>
+                <Moon size={13} className="text-blue-400" />
+                <span>Night</span>
+              </>
+            )}
+          </button>
+
           {/* Export Dropdown */}
           <div className="relative group">
-            <button className="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-200 transition">
+            <button className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+              isLight
+                ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700"
+                : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200"
+            }`}>
               <Download size={13} />
               Export
-              <ChevronDown size={12} className="text-zinc-400" />
+              <ChevronDown size={12} className={isLight ? "text-slate-400" : "text-zinc-400"} />
             </button>
-            <div className="absolute right-0 mt-1 w-36 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl py-1 hidden group-hover:block z-50 text-xs">
+            <div className={`absolute right-0 mt-1 w-36 border rounded-lg shadow-xl py-1 hidden group-hover:block z-50 text-xs ${
+              isLight ? "bg-white border-slate-200 text-slate-800" : "bg-zinc-900 border-zinc-700 text-zinc-200"
+            }`}>
               <button
                 onClick={() => handleExport("stl")}
-                className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 text-zinc-200"
+                className={`w-full text-left px-3 py-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
               >
                 STL Mesh (.stl)
               </button>
               <button
                 onClick={() => handleExport("3mf")}
-                className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 text-zinc-200"
+                className={`w-full text-left px-3 py-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
               >
                 3MF Package (.3mf)
               </button>
               <button
                 onClick={() => handleExport("scad")}
-                className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 text-zinc-200"
+                className={`w-full text-left px-3 py-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
               >
                 Source (.scad)
               </button>
               <button
                 onClick={() => handleExport("png")}
-                className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 text-zinc-200"
+                className={`w-full text-left px-3 py-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
               >
                 Snapshot (.png)
               </button>
-              <div className="h-px bg-zinc-800 my-1" />
+              <div className={`h-px my-1 ${isLight ? "bg-slate-100" : "bg-zinc-800"}`} />
               <button
                 onClick={() => {
                   setFileManagerMode("save_as");
                   setFileManagerOpen(true);
                 }}
-                className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 text-zinc-200 flex items-center gap-1.5"
+                className={`w-full text-left px-3 py-1.5 flex items-center gap-1.5 ${isLight ? "hover:bg-slate-100 text-slate-800" : "hover:bg-zinc-800 text-zinc-200"}`}
               >
-                <Save size={12} className="text-orange-400" />
+                <Save size={12} className="text-orange-500" />
                 Save As to Server...
               </button>
             </div>
@@ -645,10 +712,14 @@ export function App() {
               setFileManagerMode("browse");
               setFileManagerOpen(true);
             }}
-            className="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-200 transition"
+            className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+              isLight
+                ? "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700"
+                : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200"
+            }`}
             title="Browse, open and manage models on server"
           >
-            <FolderOpen size={13} className="text-orange-400" />
+            <FolderOpen size={13} className="text-orange-500" />
             <span>Models</span>
           </button>
 
@@ -657,8 +728,8 @@ export function App() {
             onClick={() => setApiKeyModalOpen(true)}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition ${
               hasApiKey
-                ? "bg-emerald-950/40 border-emerald-800 text-emerald-400"
-                : "bg-amber-950/40 border-amber-800 text-amber-400"
+                ? (isLight ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-emerald-950/40 border-emerald-800 text-emerald-400")
+                : (isLight ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-amber-950/40 border-amber-800 text-amber-400")
             }`}
           >
             <SettingsIcon size={13} />
@@ -677,16 +748,18 @@ export function App() {
         {/* Left Panel: Editor & Customizer */}
         <div
           style={{ width: `${editorWidth}px` }}
-          className="shrink-0 flex flex-col bg-zinc-950 overflow-hidden"
+          className={`shrink-0 flex flex-col overflow-hidden transition-colors ${isLight ? "bg-white" : "bg-zinc-950"}`}
         >
           {/* Tab Navigation */}
-          <div className="h-9 border-b border-zinc-800 flex items-center px-2 gap-1 bg-zinc-900/60">
+          <div className={`h-9 border-b flex items-center px-2 gap-1 transition-colors ${
+            isLight ? "bg-slate-50 border-slate-200" : "bg-zinc-900/60 border-zinc-800"
+          }`}>
             <button
               onClick={() => setActiveTab("editor")}
               className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition ${
                 activeTab === "editor"
-                  ? "bg-zinc-800 text-zinc-100"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? (isLight ? "bg-white text-slate-900 shadow-xs border border-slate-200/80" : "bg-zinc-800 text-zinc-100")
+                  : (isLight ? "text-slate-500 hover:text-slate-900" : "text-zinc-400 hover:text-zinc-200")
               }`}
             >
               <Code size={13} />
@@ -696,8 +769,8 @@ export function App() {
               onClick={() => setActiveTab("customizer")}
               className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition ${
                 activeTab === "customizer"
-                  ? "bg-zinc-800 text-cyan-400"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? (isLight ? "bg-white text-orange-600 font-semibold shadow-xs border border-slate-200/80" : "bg-zinc-800 text-cyan-400")
+                  : (isLight ? "text-slate-500 hover:text-slate-900" : "text-zinc-400 hover:text-zinc-200")
               }`}
             >
               <Sliders size={13} />
@@ -712,9 +785,10 @@ export function App() {
                 code={code}
                 onChange={handleCodeChange}
                 onRun={() => executeRender(code)}
+                theme={theme}
               />
             ) : (
-              <Customizer code={code} onCodeChange={handleCodeChange} />
+              <Customizer code={code} onCodeChange={handleCodeChange} theme={theme} />
             )}
           </div>
         </div>
@@ -726,15 +800,23 @@ export function App() {
             setIsDraggingLeft(true);
           }}
           className={`w-1.5 hover:w-2 transition-all cursor-col-resize z-20 select-none flex items-center justify-center relative group shrink-0 ${
-            isDraggingLeft ? "bg-orange-500 w-2" : "bg-zinc-800 hover:bg-orange-500/80"
+            isDraggingLeft
+              ? "bg-orange-500 w-2"
+              : isLight
+              ? "bg-slate-200 hover:bg-orange-500/80"
+              : "bg-zinc-800 hover:bg-orange-500/80"
           }`}
           title="Drag to resize editor"
         >
-          <div className="w-0.5 h-8 bg-zinc-600 group-hover:bg-white rounded-full transition-colors" />
+          <div className={`w-0.5 h-8 rounded-full transition-colors ${
+            isLight ? "bg-slate-400 group-hover:bg-white" : "bg-zinc-600 group-hover:bg-white"
+          }`} />
         </div>
 
         {/* Center Panel: 3D Viewport & Collapsible Console */}
-        <div className="flex-1 flex flex-col relative overflow-hidden bg-zinc-950 min-w-[200px]">
+        <div className={`flex-1 flex flex-col relative overflow-hidden min-w-[200px] transition-colors ${
+          isLight ? "bg-slate-100" : "bg-zinc-950"
+        }`}>
           <div className="flex-1 relative">
             <Viewport3D
               ref={viewportRef}
@@ -743,18 +825,23 @@ export function App() {
               renderTimeMs={renderTimeMs}
               engineName={backendVersion}
               errorMessage={lastCompilerError}
+              theme={theme}
             />
           </div>
 
           {/* Bottom Console Drawer */}
           <div
-            className={`border-t border-zinc-800 bg-zinc-900/95 transition-all duration-200 flex flex-col ${
-              isConsoleOpen ? "h-40" : "h-7"
-            }`}
+            className={`border-t transition-all duration-200 flex flex-col ${
+              isLight ? "border-slate-200 bg-white" : "border-zinc-800 bg-zinc-900/95"
+            } ${isConsoleOpen ? "h-40" : "h-7"}`}
           >
             <div
               onClick={() => setIsConsoleOpen(!isConsoleOpen)}
-              className="h-7 px-3 flex items-center justify-between text-xs text-zinc-400 hover:text-zinc-200 cursor-pointer bg-zinc-900 select-none border-b border-zinc-800/40"
+              className={`h-7 px-3 flex items-center justify-between text-xs cursor-pointer select-none border-b transition-colors ${
+                isLight
+                  ? "bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-900"
+                  : "bg-zinc-900 border-zinc-800/40 text-zinc-400 hover:text-zinc-200"
+              }`}
             >
               <div className="flex items-center gap-2">
                 <Terminal size={12} />
@@ -769,7 +856,9 @@ export function App() {
               />
             </div>
             {isConsoleOpen && (
-              <div className="flex-1 p-2.5 overflow-y-auto font-mono text-[11px] text-zinc-300 whitespace-pre-wrap select-text bg-zinc-950">
+              <div className={`flex-1 p-2.5 overflow-y-auto font-mono text-[11px] whitespace-pre-wrap select-text ${
+                isLight ? "bg-slate-100 text-slate-800" : "bg-zinc-950 text-zinc-300"
+              }`}>
                 {consoleLogs || "No output."}
               </div>
             )}
@@ -783,17 +872,25 @@ export function App() {
             setIsDraggingRight(true);
           }}
           className={`w-1.5 hover:w-2 transition-all cursor-col-resize z-20 select-none flex items-center justify-center relative group shrink-0 ${
-            isDraggingRight ? "bg-orange-500 w-2" : "bg-zinc-800 hover:bg-orange-500/80"
+            isDraggingRight
+              ? "bg-orange-500 w-2"
+              : isLight
+              ? "bg-slate-200 hover:bg-orange-500/80"
+              : "bg-zinc-800 hover:bg-orange-500/80"
           }`}
           title="Drag to resize AI chat"
         >
-          <div className="w-0.5 h-8 bg-zinc-600 group-hover:bg-white rounded-full transition-colors" />
+          <div className={`w-0.5 h-8 rounded-full transition-colors ${
+            isLight ? "bg-slate-400 group-hover:bg-white" : "bg-zinc-600 group-hover:bg-white"
+          }`} />
         </div>
 
         {/* Right Panel: Gemini CAD Copilot */}
         <div
           style={{ width: `${chatWidth}px` }}
-          className="shrink-0 flex flex-col bg-zinc-900 overflow-hidden"
+          className={`shrink-0 flex flex-col overflow-hidden transition-colors ${
+            isLight ? "bg-slate-50" : "bg-zinc-900"
+          }`}
         >
           <ChatSidebar
             currentCode={code}
@@ -803,19 +900,24 @@ export function App() {
             }}
             lastCompilerError={lastCompilerError}
             onRequestSnapshot={() => viewportRef.current?.getSnapshot() || null}
+            theme={theme}
           />
         </div>
       </div>
 
       {/* API Key Modal */}
       {apiKeyModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-xl max-w-md w-full p-5 space-y-4 shadow-2xl">
-            <h2 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
-              <SettingsIcon size={16} className="text-orange-400" />
+        <div className={`fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-colors ${
+          isLight ? "bg-slate-900/40" : "bg-black/60"
+        }`}>
+          <div className={`border rounded-xl max-w-md w-full p-5 space-y-4 shadow-2xl transition-colors ${
+            isLight ? "bg-white border-slate-200 text-slate-800" : "bg-zinc-900 border-zinc-700 text-zinc-100"
+          }`}>
+            <h2 className={`text-sm font-semibold flex items-center gap-2 ${isLight ? "text-slate-900" : "text-zinc-100"}`}>
+              <SettingsIcon size={16} className="text-orange-500" />
               Gemini API Key Configuration
             </h2>
-            <p className="text-xs text-zinc-400 leading-relaxed">
+            <p className={`text-xs leading-relaxed ${isLight ? "text-slate-600" : "text-zinc-400"}`}>
               Enter your Google Gemini API key to enable AI pair programming, compiler error self-healing, and 3D visual inspections.
             </p>
             <input
@@ -823,12 +925,16 @@ export function App() {
               placeholder="AIzaSy..."
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-100 font-mono focus:outline-none focus:border-orange-500"
+              className={`w-full border rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-orange-500 ${
+                isLight ? "bg-slate-50 border-slate-300 text-slate-900" : "bg-zinc-950 border-zinc-700 text-zinc-100"
+              }`}
             />
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setApiKeyModalOpen(false)}
-                className="px-3 py-1.5 rounded-lg text-xs text-zinc-400 hover:text-zinc-200 transition"
+                className={`px-3 py-1.5 rounded-lg text-xs transition ${
+                  isLight ? "text-slate-500 hover:text-slate-700" : "text-zinc-400 hover:text-zinc-200"
+                }`}
               >
                 Cancel
               </button>
@@ -842,6 +948,7 @@ export function App() {
           </div>
         </div>
       )}
+
       {/* Server File Manager Modal */}
       <FileManagerModal
         isOpen={fileManagerOpen}
@@ -856,12 +963,17 @@ export function App() {
           showToast(`Saved as models/${newFilename}`);
         }}
         initialMode={fileManagerMode}
+        theme={theme}
       />
 
       {/* Floating Save/Status Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-50 bg-zinc-900 border border-zinc-700/80 text-zinc-100 text-xs px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+        <div className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 z-50 border text-xs px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200 ${
+          isLight
+            ? "bg-white border-slate-200 text-slate-800 shadow-md"
+            : "bg-zinc-900 border-zinc-700/80 text-zinc-100"
+        }`}>
+          <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
             <Check size={11} className="stroke-[3]" />
           </div>
           <span className="font-medium font-mono text-[11px]">{toastMessage}</span>
